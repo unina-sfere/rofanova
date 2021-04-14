@@ -1,8 +1,9 @@
 
 // #define RCPP_ARMADILLO_RETURN_COLVEC_AS_VECTOR
-  #include <RcppArmadillo.h>
-  #include <string>
-  using namespace Rcpp;
+#include <RcppArmadillo.h>
+#include <string>
+using namespace Rcpp;
+// [[Rcpp::depends(RcppArmadillo)]]
 
 // [[Rcpp::export]]
 
@@ -20,17 +21,17 @@ arma::mat norm_fdata_c(List v){
 }
 // // [[Rcpp::export]]
 // arma::mat norm_fdata_c(List v){
-  //
-    //
-    //   arma::mat data = v[0];
-    //   arma::vec grid=v[1];
-    //   arma::mat data_2=abs(data);
-    //   arma::mat integrale=trapz(grid,trans(data_2));
-    //   arma::mat norm =integrale;
-    //   return(norm);
-    //
-      //
-      // }
+//
+//
+//   arma::mat data = v[0];
+//   arma::vec grid=v[1];
+//   arma::mat data_2=abs(data);
+//   arma::mat integrale=trapz(grid,trans(data_2));
+//   arma::mat norm =integrale;
+//   return(norm);
+//
+//
+// }
 
 // [[Rcpp::export]]
 arma::mat norm_fdata_c_sur(List v){
@@ -59,8 +60,8 @@ arma::mat norm_fdata_c_sur(List v){
   }
   // Rcout<<integrale<<"\n";
   //
-    // arma::mat norm =integrale;
-    return(integrale);
+  // arma::mat norm =integrale;
+  return(integrale);
 
 
 }
@@ -160,8 +161,8 @@ List stdandar_sur(List x,List mu,List sig){
   }
 
   // for (int i = 0; i < n; i++) {
-    //   tmp3.row(i)= sig_mat;
-    // }
+  //   tmp3.row(i)= sig_mat;
+  // }
   // arma::cube sum=(data-tmp2)/tmp3;
   out[0] = tmp1;
   return out;
@@ -279,11 +280,12 @@ List iteration_sur(List x,List mu0,List sig0,int kpsi,double ktun,double tol, in
 arma::mat Mwgt_r(arma::mat x,arma::mat cc, Rcpp::StringVector  family){
   // Obtain environment containing function
   Rcpp::Environment base("package:robustbase");
+  // Rcpp::Function Mwgt_ri("Mwgt", Environment::namespace_env("robustbase"));
   // Rcout<<family<<"\n";
   // Make function callable from C++
-    Rcpp::Function Mwgt_ri = base["Mwgt"];
-    arma::mat out=Rcpp :: as < arma :: mat >(Mwgt_ri(x,cc,family));
-    return out; // uses Rcpp sugar
+  Rcpp::Function Mwgt_ri = base["Mwgt"];
+  arma::mat out=Rcpp :: as < arma :: mat >(Mwgt_ri(x,cc,family));
+  return out; // uses Rcpp sugar
 }
 // [[Rcpp::export]]
 List iteration_ho(List x,List mu0,List sig0,arma::mat cc,Rcpp::StringVector family,double tol, int maxit){
@@ -301,7 +303,6 @@ List iteration_ho(List x,List mu0,List sig0,arma::mat cc,Rcpp::StringVector fami
 
   double sum_ww;
   while (dife(0) > tol_mat(0) & iter < maxit) {
-    // Rcout<<iter<<"\n";
     ++iter;
     data_std=stdandar(x,mu0,sig0);
     resi= norm_fdata_c(data_std);
@@ -365,47 +366,47 @@ List iteration_ho_sur(List x,List mu0,List sig0,arma::mat cc,Rcpp::StringVector 
 }
 
 //
-  //
-  // while (dife > tol & iter < maxit) {
-    // # cat(iter)
-      //   iter = iter + 1
-      //   resi =norm_fdata_c((x-mu0)/sig0 )
-      //   ww = wfun_c(resi, kpsi,ktun)
-      //   prod<-x
-      //   prod$data<-diag(as.numeric(ww))%*%x$data
-      //   mu = sum_fdata_c(prod)/sum(ww)
-      //   resi_new =norm_fdata_c((x-mu)/sig0)
-      //   dife = abs(mean(resi_new) - mean(resi))/mean(resi)
-      //   mu0 = mu
-      // }
+//
+// while (dife > tol & iter < maxit) {
+// # cat(iter)
+//   iter = iter + 1
+//   resi =norm_fdata_c((x-mu0)/sig0 )
+//   ww = wfun_c(resi, kpsi,ktun)
+//   prod<-x
+//   prod$data<-diag(as.numeric(ww))%*%x$data
+//   mu = sum_fdata_c(prod)/sum(ww)
+//   resi_new =norm_fdata_c((x-mu)/sig0)
+//   dife = abs(mean(resi_new) - mean(resi))/mean(resi)
+//   mu0 = mu
+// }
 // sum_fdata<-function(x){
-  //   out<-x
-  //   out$data<-matrix(colSums(x$data),1)
-  //   return(out)
-  // }
+//   out<-x
+//   out$data<-matrix(colSums(x$data),1)
+//   return(out)
+// }
 //
-  // wfun<-function (x, k,ktun)
-    // {
-      //   if (k == 1)  ww = (1 - (x/ktun)^2)^2 * (abs(x) <= ktun)
-      //     else if(k==2) ww = (abs(x) <= ktun) + (abs(x) > ktun)*ktun/(abs(x) + 1e-20)
-      //       else if(k==3) ww = 1/(abs(x) + 1e-10)
-      //         return(ww)
-      // }
+// wfun<-function (x, k,ktun)
+// {
+//   if (k == 1)  ww = (1 - (x/ktun)^2)^2 * (abs(x) <= ktun)
+//     else if(k==2) ww = (abs(x) <= ktun) + (abs(x) > ktun)*ktun/(abs(x) + 1e-20)
+//       else if(k==3) ww = 1/(abs(x) + 1e-10)
+//         return(ww)
+// }
 //
-  //
-  //
-  //
-  //   dife = 1e+10
+//
+//
+//
+//   dife = 1e+10
 // iter = 0
 // while (dife > tol & iter < maxit) {
-  // # cat(iter)
-    //   iter = iter + 1
-    //   resi =norm_fdata_c((x-mu0)/sig0 )
-    //   ww = wfun(resi, kpsi,ktun)
-    //   prod<-x
-    //   prod$data<-diag(as.numeric(ww))%*%x$data
-    //   mu = sum_fdata(prod)/sum(ww)
-    //   resi_new =norm_fdata_c((x-mu)/sig0)
-    //   dife = abs(mean(resi_new) - mean(resi))/mean(resi)
-    //   mu0 = mu
-    // }
+// # cat(iter)
+//   iter = iter + 1
+//   resi =norm_fdata_c((x-mu0)/sig0 )
+//   ww = wfun(resi, kpsi,ktun)
+//   prod<-x
+//   prod$data<-diag(as.numeric(ww))%*%x$data
+//   mu = sum_fdata(prod)/sum(ww)
+//   resi_new =norm_fdata_c((x-mu)/sig0)
+//   dife = abs(mean(resi_new) - mean(resi))/mean(resi)
+//   mu0 = mu
+// }

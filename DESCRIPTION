@@ -15,5 +15,11 @@ RoxygenNote: 7.1.1
 LinkingTo: 
     Rcpp,RcppArmadillo
 Imports: 
-    Rcpp
+    Rcpp,
+    RcppArmadillo
+Depends:
+    fda.usc,
+    robustbase
 SystemRequirements: GNU make
+Suggests: 
+    testthat
