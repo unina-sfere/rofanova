@@ -11,7 +11,7 @@ n_i=20
 
 alpha=0.05
 N=500
-B=1000
+B=20
 k=3
 n=n_i*k
 length_grid<-25
@@ -37,15 +37,15 @@ grid<-data_out$grid
 X_fdata<-fdata(t(data),argvals = grid)
 # RoFanova ----------------------------------------------------------------
 mu0=func.trim.FM(X_fdata,trim=0.2)
-per_list_median<-RoFanova_oneway_perm(X_fdata,label,B = B,eff=eff,family="median",mu0_g=mu0)
+per_list_median<-rofanova(X_fdata,label,B = B,eff=eff,family="median",mu0_g=mu0)
 pvalue_median<-per_list_median$pval
-per_list_huber<-RoFanova_oneway_perm(X_fdata,label,B = B,eff=eff,family="huber",mu0_g=mu0)
+per_list_huber<-rofanova(X_fdata,label,B = B,eff=eff,family="huber",mu0_g=mu0)
 pvalue_huber<-per_list_huber$pval
-per_list_bisquare<-RoFanova_oneway_perm(X_fdata,label,B = B,eff=eff,family="bisquare",mu0_g=mu0)
+per_list_bisquare<-rofanova(X_fdata,label,B = B,eff=eff,family="bisquare",mu0_g=mu0)
 pvalue_bisquare<-per_list_bisquare$pval
-per_list_hampel<-RoFanova_oneway_perm(X_fdata,label,B = B,eff=eff,family="hampel",mu0_g=mu0)
+per_list_hampel<-rofanova(X_fdata,label,B = B,eff=eff,family="hampel",mu0_g=mu0)
 pvalue_hampel<-per_list_hampel$pval
-per_list_optimal<-RoFanova_oneway_perm(X_fdata,label,B = B,eff=eff,family="optimal",mu0_g=mu0)
+per_list_optimal<-rofanova(X_fdata,label,B = B,eff=eff,family="optimal",mu0_g=mu0)
 pvalue_optimal<-per_list_optimal$pval
 
 
