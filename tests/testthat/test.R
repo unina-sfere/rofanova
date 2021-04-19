@@ -30,11 +30,9 @@ beta_vec<-c(0,.05,.10,.25,.50)#c(0,.025,.05,.075,.10,.15,.25,.35,.50)
 p_cont<-p_cont_vec[ll_cont]
 M_given<-M_vec[ll_m]
 sd_given<-sd_vec[ll_sd]
-data_out<-simulate_data_oneway(k=k,mean = media,con=contaminazione,p = p_cont,n_i = n_i,M = M_given,sd = sd_given,grid =grid)
-data=data_out$data
+data_out<-simulate_data(scenario="one-way",k_1=k,mean = media,con=contaminazione,p = p_cont,n_i = n_i,M = M_given,sd = sd_given,grid =grid)
 label=data_out$label
-grid<-data_out$grid
-X_fdata<-fdata(t(data),argvals = grid)
+X_fdata<-data_out$X_fdata
 # RoFanova ----------------------------------------------------------------
 mu0=func.trim.FM(X_fdata,trim=0.2)
 per_list_median<-rofanova(X_fdata,label,B = B,eff=eff,family="median",mu0_g=mu0)
@@ -51,19 +49,6 @@ pvalue_optimal<-per_list_optimal$pval
 
 
 # Test two way ------------------------------------------------------------
-
-library(mvtnorm)
-
-library(fda.usc)
-library(fda)
-library(pbmcapply)
-library(fdANOVA)
-library(Rcpp)
-library(parallel)
-library(robustbase)
-source("../fun_RoFanova.R")
-sourceCpp('../fun.cpp')
-
 
 
 media<-"M1"
@@ -94,14 +79,11 @@ beta<-beta_vec[ll_beta]
 p_cont<-p_cont_vec[ll_cont]
 M_given<-M_vec[ll_m]
 sd_given<-sd_vec[ll_sd]
-
-data_out<-simulate_data_twoway(con=contaminazione,k_1=k_1,k_2=k_2,alpha = alpha,beta=beta,
-                               p = p_cont,n_i = n_i,M = M_given,sd = sd_given,grid =grid)
-data=data_out$data
+data_out<-simulate_data(scenario="two-way",con=contaminazione,k_1=k_1,k_2=k_2,alpha = alpha,beta=beta,
+                        p = p_cont,n_i = n_i,M = M_given,sd = sd_given,grid =grid)
 label_1=data_out$label_1
 label_2=data_out$label_2
-grid<-data_out$grid
-X_fdata<-fdata(t(data),argvals = grid)
+X_fdata<-data_out$X_fdata
 
 # RoFanova ----------------------------------------------------------------
 mu0=func.trim.FM(X_fdata,trim=0.2)
