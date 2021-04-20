@@ -296,9 +296,8 @@ simulate_data_twoway_sur<-function(con="C1",n_i=10,k_1=3,k_2=3,p=0.1,M=1,alpha=0
 # Robust location/scale estimation -----------------------------------------
 
 #si
-FlocScaleM<-function (x, psi = "bisquare", eff = 0.95, maxit = 50, tol = 1e-04,mu0_g=NA,sig0_g=NA,cpp=TRUE){
-  kpsi <- switch(psi, bisquare = 1, huber = 2, optimal = 3,
-                 modopt = 4, median=5,mean=6,hampel=7,8)
+FlocScaleM<-function (x, psi = "bisquare", eff = 0.95, maxit = 50, tol = 1e-04,mu0_g=NA,sig0_g=NA){
+  kpsi <- switch(psi, bisquare = 1, huber = 2, optimal = 3, median=5,mean=6,hampel=7,8)
   if (kpsi == 8) {
     stop(paste0(psi, " - No such rho function"))
   }
@@ -325,27 +324,9 @@ FlocScaleM<-function (x, psi = "bisquare", eff = 0.95, maxit = 50, tol = 1e-04,m
       resi_start =norm_fdata_c((x-mu0)/sig0 )
       ww_start= wfun_c(resi_start, kpsi,ktun)
       if(all(ww_start==0))mu0=func.trim.FM(x,trim=0.5)
-      if(cpp==TRUE){
-        mu=iteration(x,mu0,sig0,kpsi,ktun,tol, maxit)
-      }
-      else{
-        dife = 1e+10
-        iter = 0
-        while (dife > tol & iter < maxit) {
-          iter = iter + 1
-          resi =norm_fdata_c((x-mu0)/sig0 )
-          ww = wfun(resi, kpsi,ktun)
-          prod<-x
-          prod$data<-diag(as.numeric(ww))%*%x$data
-          mu = sum_fdata(prod)/sum(ww)
-          resi_new =norm_fdata((x-mu)/sig0)
-          dife = abs(mean(resi_new) - mean(resi))/mean(resi)
-          mu0 = mu
-        }
 
+      mu=iteration(x,mu0,sig0,kpsi,ktun,tol, maxit)
 
-
-      }
     }
 
     resu <- list(mu = mu,mu0=mu0_g,sig0=sig0_g)
@@ -382,27 +363,9 @@ FlocScaleM<-function (x, psi = "bisquare", eff = 0.95, maxit = 50, tol = 1e-04,m
         resi_start =norm_fdata_c((x-mu0)/sig0 )
         ww_start= robustbase::Mwgt(resi_start, ktun, family)
         if(all(ww_start==0))mu0=func.trim.FM(x,trim=0.5)
-        if(cpp==TRUE){
-          mu=iteration_ho(x,mu0,sig0,matrix(ktun),family,tol, maxit)
-        }
-        else{
-          dife <- 1e+10
-          iter <- 0
-          while (dife > tol && iter < maxit) {
-            cat(iter)
-            iter <- iter + 1
-            st<-stdandar(x, mu0,sig0)
-            resi <- norm_fdata_c(st)
-            ww <- Mwgt(resi, ktun, family)
-            prod<-x
-            prod$data<-diag(as.numeric(ww))%*%x$data
-            mu = sum_fdata_c(prod)/sum(ww)
-            st2<-stdandar(x, mu,sig0)
-            resi_new =norm_fdata_c(st2)
-            dife = abs(mean(resi_new) - mean(resi))/mean(resi)
-            mu0 <- mu
-          }
-        }
+
+        mu=iteration_ho(x,mu0,sig0,matrix(ktun),family,tol, maxit)
+
       }
       resu <- list(mu = mu,mu0=mu0_g,sig0=sig0_g)
 
@@ -412,8 +375,7 @@ FlocScaleM<-function (x, psi = "bisquare", eff = 0.95, maxit = 50, tol = 1e-04,m
   return(resu)
 }
 FlocScaleM_sur<-function (x, psi = "bisquare", eff = 0.95, maxit = 50, tol = 1e-04,mu0_g=NULL,sig0_g=NULL){
-  kpsi <- switch(psi, bisquare = 1, huber = 2, optimal = 3,
-                 modopt = 4, median=5,mean=6,hampel=7,8)
+  kpsi <- switch(psi, bisquare = 1, huber = 2, optimal = 3, median=5,mean=6,hampel=7,8)
   if (kpsi == 8) {
     stop(paste0(psi, " - No such rho function"))
   }
@@ -637,8 +599,77 @@ scale_res_twoway_pw_sur<-function(x,label_1,label_2,...){
 
 # RoFanova ----------------------------------------------------------------
 
+#' @title Robust Functional Analysis of Variance
+#' @description Robust Functional Analysis of Variance (RoFANOVA) allows identifying the presence of significant differences, in terms of
+#' functional mean, among groups of a functional data by being robust against the presence of outliers  (Centofanti et al., 2021).
+#' @param X Either an object of class  \code{fdata} for monodimensional functional data  or an object of class \code{fdata2d} for bi-dimensional functional data.
+#' @param label_1 A vector of containing group label corresponding to the first main effect.
+#' @param label_2 A vector of containing group label corresponding to the first main effect. If it is NULL, the one-way RoFANOVA is performed.
+#'  Otherwise, the two-way RoFANOVA with interaction is employed. Default is NULL.
+#' @param B  The number of permutations used to approximate the p-value in the permutation test. Default is 1000.
+#' @param cores If \code{cores}>1, then parallel computing is used, with \code{cores} cores. Default is 1.
+#'  @param family The family of loss function for the calcualtion of the equivariant functional M-estimator. The values allowed are
+#'  "bisquare" for the bisquare or Tukey's biweight family of loss functions;  "huber" for the the Huber's family of loss functions;
+#'    "optimal" for the  optimal family of loss functions; "hampel" for the the Hampel's family of loss functions; "median" for the median loss function.
+#'    A non-robust functional estimator of the mean based on the standard least squares loss function is used with the value "mean". Default is "bisquare".
+#' @param eff Asymptotic efficiency of the equivariant functional M-estimator. When \code{family} is either "mean" or "median", \code{eff} is ignored.
+#' @param mu0_g Initial estimate  used in re-weighted least-squares algorithm to compute the equivariant functional M-estimator.
+#' If NULL the standard non-robust functional mean is used. Default is NULL.
+#' @param scale Estimate of the standard error of \code{X}. If NUll, the functional normalized median absolute deviation estimator is used. Default is NULL.
+#' @param maxit The maximum number of iterations allowed in the re-weighted least-squares algorithm to compute the equivariant functional M-estimator.
+#' @param tol The tolerance for the stopping condition of the re-weighted least-squares algorithm to compute the equivariant functional M-estimator.
+#' The algorithm stops when the relative variation of the weighted norm sum between two consecutive iterations is less than \code{tol}.
+#' @return   A list containing the following arguments:
+#' \code{mod} that is a list composed by
+#' \itemize{
+#' \item \code{data}: A list containing the vectorized form of \code{X}, \code{timeindex}, and \code{curve}. For functional data observed over a regular grid \code{timeindex} and \code{curve} are trivially obtained.
+#'
+#' \item \code{parameters}: A list containing all the estimated parameters.
+#'
+#' \item \code{vars}: A list containing results from the Expectation step of the ECM algorithm.
+#'
+#' \item \code{FullS}: The matrix of B-spline computed over \code{grid}.
+#'
+#' \item \code{grid}: The vector of time points where the curves are sampled.
+#'
+#' \item \code{W}: The basis roughness penalty matrix containing the inner products of pairs of basis function second derivatives.
+#'
+#' \item \code{AW_vec}: Vectorized version of the diagonal matrix used in the approximation of FAPFP.
+#'
+#' \item \code{P_tot}: Sparse Matrix used to compute all the pairwise comparisons in the FAPFP.
+#'
+#' \item \code{lambda_s}: Tuning parameter of the smoothness penalty.
+#'
+#' \item \code{lambda_l}: Tuning parameter of the FAPFP.
+#'}
+#'
+#'A list, named \code{clus}, containing the following arguments:
+#'\itemize{
+#' \item \code{classes}: The vector of cluster membership.
+#'
+#' \item \code{po_pr}: Posterior probabilities of cluster membership.
+#'}
+#'
+#'\code{mean_fd} The estimated cluster mean functions.
+#'
+#'\code{class} A label for the output type.
+#'@seealso \code{\link{sasfclust_cv}}
+#'
 #' @export
-rofanova<-function(X,label_1,label_2=NULL,B=100,cores=1,eff=0.95,family="bisquare",mu0_g=NULL,scale=NULL,maxit = 50, tol = 1e-04){
+#' @references
+#' Centofanti, F., Lepore, A., & Palumbo, B. (2021).
+#' Sparse and Smooth Functional Data Clustering.
+#' \emph{arXiv preprint arXiv:2103.15224}.
+#'
+#' Ramsay, J., Ramsay, J., & Silverman, B. W. (2005). Functional Data Analysis. Springer Science & Business Media.
+#' @examples
+#' library(sasfunclust)
+#' train<-simulate_data("Scenario I",n_i=20,var_e = 1,var_b = 0.5^2)
+#' mod<-sasfclust(X=train$X,grid=train$grid,lambda_s = 10^-6,lambda_l =10,G = 2,maxit = 5,q=10)
+#' plot(mod)
+#' @importFrom matrixcalc vec
+#' @importFrom fda create.bspline.basis fd plot.fd
+rofanova<-function(X,label_1,label_2=NULL,B=100,cores=1,family="bisquare",eff=0.95,mu0_g=NULL,scale=NULL,maxit = 50, tol = 1e-04){
 
   if(length(dim(X_fdata$data))==2){
   if(is.null(label_2)[1]){
