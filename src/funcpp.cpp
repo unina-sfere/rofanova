@@ -210,7 +210,7 @@ List iteration(List x,List mu0,List sig0,double kpsi,double ktun,double tol, int
   List somma_fdata;
 
   double sum_ww;
-  while (dife(0) > tol_mat(0) & iter < maxit) {
+  while ((dife(0) > tol_mat(0)) & (iter < maxit)) {
     // Rcout<<iter<<"\n";
     ++iter;
     data_std=stdandar(x,mu0,sig0);
@@ -249,7 +249,7 @@ List iteration_sur(List x,List mu0,List sig0,int kpsi,double ktun,double tol, in
   List somma_fdata;
 
   double sum_ww;
-  while (dife(0) > tol_mat(0) & iter < maxit) {
+  while ((dife(0) > tol_mat(0)) & (iter < maxit)) {
     // Rcout<<iter<<"\n";
     ++iter;
     data_std=stdandar_sur(x,mu0,sig0);
@@ -302,7 +302,7 @@ List iteration_ho(List x,List mu0,List sig0,arma::mat cc,Rcpp::StringVector fami
   List somma_fdata;
 
   double sum_ww;
-  while (dife(0) > tol_mat(0) & iter < maxit) {
+  while ((dife(0) > tol_mat(0)) & (iter < maxit)) {
     ++iter;
     data_std=stdandar(x,mu0,sig0);
     resi= norm_fdata_c(data_std);
@@ -340,7 +340,7 @@ List iteration_ho_sur(List x,List mu0,List sig0,arma::mat cc,Rcpp::StringVector 
   List somma_fdata;
 
   double sum_ww;
-  while (dife(0) > tol_mat(0) & iter < maxit) {
+  while ((dife(0) > tol_mat(0)) & (iter < maxit)) {
     // Rcout<<iter<<"\n";
     ++iter;
     data_std=stdandar_sur(x,mu0,sig0);

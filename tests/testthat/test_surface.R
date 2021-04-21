@@ -33,7 +33,7 @@ p_cont<-p_cont_vec[ll_cont]
 M_given<-M_vec[ll_m]
 sd_given<-sd_vec[ll_sd]
 data_out<-simulate_data(scenario="one-way surface",k_1=k,mean = media,con=contaminazione,p = p_cont,n_i = n_i,M = M_given,sd = sd_given,grid =grid)
-label=data_out$label
+label_1=data_out$label
 X_fdata<-data_out$X_fdata
 slice=20
 plot(X_fdata$data[1,slice,],type="l",ylim=c(0,0.2))

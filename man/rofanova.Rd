@@ -23,16 +23,16 @@ rofanova(
 
 \item{label_1}{A vector of containing group label corresponding to the first main effect.}
 
-\item{label_2}{A vector of containing group label corresponding to the first main effect. If it is NULL, the one-way RoFANOVA is performed.
+\item{label_2}{A vector of containing group label corresponding to the second main effect. If it is NULL, the one-way RoFANOVA is performed.
 Otherwise, the two-way RoFANOVA with interaction is employed. Default is NULL.}
 
-\item{B}{The number of permutations used to approximate the p-value in the permutation test. Default is 1000.}
-
-\item{cores}{If \code{cores}>1, then parallel computing is used, with \code{cores} cores. Default is 1.
+\item{B}{The number of permutations used to approximate the p-value in the permutation test. Default is 1000.
 @param family The family of loss function for the calcualtion of the equivariant functional M-estimator. The values allowed are
 "bisquare" for the bisquare or Tukey's biweight family of loss functions;  "huber" for the the Huber's family of loss functions;
   "optimal" for the  optimal family of loss functions; "hampel" for the the Hampel's family of loss functions; "median" for the median loss function.
   A non-robust functional estimator of the mean based on the standard least squares loss function is used with the value "mean". Default is "bisquare".}
+
+\item{cores}{If \code{cores}>1, then parallel computing is used, with \code{cores} cores. Default is 1.}
 
 \item{eff}{Asymptotic efficiency of the equivariant functional M-estimator. When \code{family} is either "mean" or "median", \code{eff} is ignored.}
 
@@ -47,57 +47,66 @@ If NULL the standard non-robust functional mean is used. Default is NULL.}
 The algorithm stops when the relative variation of the weighted norm sum between two consecutive iterations is less than \code{tol}.}
 }
 \value{
-A list containing the following arguments:
-\code{mod} that is a list composed by
+\code{pval_vec} Vector of p-value of corresponding to the test of the main effects and the interaction.  For one-way RoFANOVA, it is the p-value corresponding to the test of the main effect.
+
+ \code{Tr_obs} The observed value of the test statistic.
+
+ \code{Tr_perm} The values of the test statistic for each permutation.
+
+  \code{mod} A list containing the following arguments:
 \itemize{
-\item \code{data}: A list containing the vectorized form of \code{X}, \code{timeindex}, and \code{curve}. For functional data observed over a regular grid \code{timeindex} and \code{curve} are trivially obtained.
+\item \code{Tr}: The observed value of the test statistic.
 
-\item \code{parameters}: A list containing all the estimated parameters.
+\item\code{global_mean}: The robust estimate of functional grand mean.
 
-\item \code{vars}: A list containing results from the Expectation step of the ECM algorithm.
+\item\code{group_mean_1}: The robust estimate of the first functional main effect.
 
-\item \code{FullS}: The matrix of B-spline computed over \code{grid}.
+\item\code{group_mean_2}: The robust estimate of the second functional main effect. For one-way RoFANOVA, it is NULL.
 
-\item \code{grid}: The vector of time points where the curves are sampled.
+\item\code{group_mean_ij}: The robust estimate of the group functional mean. For one-way, it RoFANOVA is NULL.
 
-\item \code{W}: The basis roughness penalty matrix containing the inner products of pairs of basis function second derivatives.
+\item\code{scale}: The robust estimate of functional standard deviation.
 
-\item \code{AW_vec}: Vectorized version of the diagonal matrix used in the approximation of FAPFP.
+\item\code{scale_1}: The robust estimate of functional standard deviation corresponding to the first functional main effect.
 
-\item \code{P_tot}: Sparse Matrix used to compute all the pairwise comparisons in the FAPFP.
+\item\code{scale_2}: The robust estimate of functional standard deviation corresponding to the second functional main effect. For one-way RoFANOVA, it is NULL.
 
-\item \code{lambda_s}: Tuning parameter of the smoothness penalty.
+\item\code{scale_re}: The robust estimate of the  functional standard deviation of the error distribution. For one-way RoFANOVA, it is NULL.
 
-\item \code{lambda_l}: Tuning parameter of the FAPFP.
+\item\code{X}: The variable \code{X}.
+
+\item\code{label_1}: The vector of containing group label corresponding to the first main effect.
+
+ \item\code{label_2}: The vector of containing group label corresponding to the second main effect. For one-way RoFANOVA, it is NULL.
+
+ \item\code{family}: The family of loss function for the calcualtion of the equivariant functional M-estimator.
 }
-
-A list, named \code{clus}, containing the following arguments:
-\itemize{
-\item \code{classes}: The vector of cluster membership.
-
-\item \code{po_pr}: Posterior probabilities of cluster membership.
-}
-
-\code{mean_fd} The estimated cluster mean functions.
-
-\code{class} A label for the output type.
 }
 \description{
 Robust Functional Analysis of Variance (RoFANOVA) allows identifying the presence of significant differences, in terms of
 functional mean, among groups of a functional data by being robust against the presence of outliers  (Centofanti et al., 2021).
 }
 \examples{
-library(sasfunclust)
-train<-simulate_data("Scenario I",n_i=20,var_e = 1,var_b = 0.5^2)
-mod<-sasfclust(X=train$X,grid=train$grid,lambda_s = 10^-6,lambda_l =10,G = 2,maxit = 5,q=10)
-plot(mod)
+
+library(rofanova)
+data_out<-simulate_data(scenario="one-way")
+label=data_out$label
+X_fdata<-data_out$X_fdata
+per_list_median<-rofanova(X_fdata,label,B = 10,eff=eff,family="median")
+pvalue_median<-per_list_median$pval
+per_list_huber<-rofanova(X_fdata,label,B = 10,eff=eff,family="huber")
+pvalue_huber<-per_list_huber$pval
+per_list_bisquare<-rofanova(X_fdata,label,B = 10,eff=eff,family="bisquare")
+pvalue_bisquare<-per_list_bisquare$pval
+per_list_hampel<-rofanova(X_fdata,label,B = 10,eff=eff,family="hampel")
+pvalue_hampel<-per_list_hampel$pval
+per_list_optimal<-rofanova(X_fdata,label,B = 10,eff=eff,family="optimal")
+pvalue_optimal<-per_list_optimal$pval
 }
 \references{
 Centofanti, F., Lepore, A., & Palumbo, B. (2021).
 Sparse and Smooth Functional Data Clustering.
 \emph{arXiv preprint arXiv:2103.15224}.
-
-Ramsay, J., Ramsay, J., & Silverman, B. W. (2005). Functional Data Analysis. Springer Science & Business Media.
 }
 \seealso{
 \code{\link{sasfclust_cv}}

@@ -55,7 +55,7 @@ media<-"M1"
 contaminazione<-'C0'
 n_i=20
 N=500
-B=1000
+B=10
 alpha_test=0.05
 ll_cont<-1
 ll_m<-1
@@ -98,6 +98,4 @@ per_list_hampel<-rofanova(X_fdata,label_1,label_2,B = B,eff=eff,family="hampel",
 pvalue_hampel_vec<-per_list_hampel$pval_vec
 per_list_optimal<-rofanova(X_fdata,label_1,label_2,B = B,eff=eff,family="optimal",mu0_g=mu0,scale=scale_glob)
 pvalue_optimal_vec<-per_list_optimal$pval_vec
-
-
 

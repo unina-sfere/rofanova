@@ -5,10 +5,10 @@
 \alias{rofanova-package}
 \alias{_PACKAGE}
 \alias{{rofanova}-package}
-\title{Robust FUnctional Anlaysis of Variance}
+\title{Robust Functional Anlaysis of Variance}
 \description{
-More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Implements the robust functional analysis of variance (RoFANOVA), described in Centofanti et al. (2021) <arXiv:2103.15224>. 
+    It allows testing mean differences among groups of  functional data by being robust aginst the presence of outliers.
 }
 \details{
 \tabular{ll}{
@@ -22,19 +22,19 @@ License: \tab `r packageDescription("rofanova", fields="License")`\cr
 \examples{
 \donttest{
 library(rofanova)
-train<-simulate_data("Scenario I",n_i=20,var_e = 1,var_b = 0.5^2)
-lambda_s_seq=10^seq(-4,-3)
-lambda_l_seq=10^seq(-1,0)
-G_seq=2
-mod_cv<-sasfclust_cv(X=train$X,grid=train$grid,G_seq=G_seq,
-lambda_l_seq = lambda_l_seq,lambda_s_seq =lambda_s_seq,maxit = 5,K_fold = 2,q=10)
-plot(mod_cv)
-
-mod<-sasfclust(X=train$X,grid=train$grid,G=mod_cv$G_opt,
- lambda_l = mod_cv$lambda_l_opt,lambda_s =mod_cv$lambda_s_opt,maxit = 5,q=10)
-
-print(mod$clus$classes)
-plot(mod)
+data_out<-simulate_data(scenario="one-way")
+label=data_out$label
+X_fdata<-data_out$X_fdata
+per_list_median<-rofanova(X_fdata,label,B = 10,eff=eff,family="median")
+pvalue_median<-per_list_median$pval
+per_list_huber<-rofanova(X_fdata,label,B = 10,eff=eff,family="huber")
+pvalue_huber<-per_list_huber$pval
+per_list_bisquare<-rofanova(X_fdata,label,B = 10,eff=eff,family="bisquare")
+pvalue_bisquare<-per_list_bisquare$pval
+per_list_hampel<-rofanova(X_fdata,label,B = 10,eff=eff,family="hampel")
+pvalue_hampel<-per_list_hampel$pval
+per_list_optimal<-rofanova(X_fdata,label,B = 10,eff=eff,family="optimal")
+pvalue_optimal<-per_list_optimal$pval
 }
 }
 \references{
@@ -43,7 +43,7 @@ Sparse and Smooth Functional Data Clustering.
 \emph{arXiv preprint arXiv:2103.15224}.
 }
 \seealso{
-\code{\link{sasfclust}},  \code{\link{sasfclust_cv}}
+\code{\link{rofanova}},  \code{\link{sasfclust_cv}}
 }
 \author{
 Fabio Centofanti, Antonio Lepore, Biagio Palumbo

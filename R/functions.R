@@ -296,7 +296,7 @@ simulate_data_twoway_sur<-function(con="C1",n_i=10,k_1=3,k_2=3,p=0.1,M=1,alpha=0
 # Robust location/scale estimation -----------------------------------------
 
 #si
-FlocScaleM<-function (x, psi = "bisquare", eff = 0.95, maxit = 50, tol = 1e-04,mu0_g=NA,sig0_g=NA){
+FlocScaleM<-function (x, psi = "bisquare", eff = 0.95, maxit = 50, tol = 1e-04,mu0_g=NULL,sig0_g=NULL){
   kpsi <- switch(psi, bisquare = 1, huber = 2, optimal = 3, median=5,mean=6,hampel=7,8)
   if (kpsi == 8) {
     stop(paste0(psi, " - No such rho function"))
@@ -311,9 +311,9 @@ FlocScaleM<-function (x, psi = "bisquare", eff = 0.95, maxit = 50, tol = 1e-04,m
 
     ktun=keff=1
 
-    if(is.na(mu0_g)) mu0=func.mean(x)
+    if(is.null(mu0_g)) mu0=func.mean(x)
     else mu0=mu0_g
-    if(is.na(sig0_g)) sig0=sqrt(func.var(x))
+    if(is.null(sig0_g)) sig0=sqrt(func.var(x))
     else sig0=sig0_g
 
     if (max(sig0) < 1e-10) {
@@ -350,9 +350,9 @@ FlocScaleM<-function (x, psi = "bisquare", eff = 0.95, maxit = 50, tol = 1e-04,m
     }
     else {
 
-      if(is.na(mu0_g)) mu0=func.mean(x)
+      if(is.null(mu0_g)) mu0=func.mean(x)
       else mu0=mu0_g
-      if(is.na(sig0_g)) sig0=sqrt(func.var(x))
+      if(is.null(sig0_g)) sig0=sqrt(func.var(x))
       else sig0=sig0_g
 
       if (max(sig0) < 1e-10) {
@@ -528,7 +528,7 @@ scale_res_oneway_pw<-function(x,label,...){
   k=length(unique(label))
   grid<-x$argval
   sig0<-fdata(rep(1,length(x$data[1,])),argvals = x$argvals)
-  res_list<-lapply(1:k,function(ii)x[label==ii]-FlocScaleM(x[label==ii], psi = "median", sig0=sig0,  ...)$mu )
+  res_list<-lapply(1:k,function(ii)x[label==ii]-FlocScaleM(x[label==ii], psi = "median", sig0_g=sig0,  ...)$mu )
   res_data<-Reduce("rbind",lapply(1:k, function(ii)res_list[[ii]]$data))
   res<-fdata(res_data,argvals =grid )
   med<-(1/0.675)*pw_median(abs(res))
@@ -539,7 +539,7 @@ scale_res_oneway_pw_sur<-function(x,label,...){
 
   grid<-x$argvals
   sig0<-fdata(array(1,dim = c(1,dim(x$data)[2],dim(x$data)[3])),argvals = x$argvals)
-  res_list<-lapply(1:k,function(ii)center_sur(ex_fdata(x,label==ii),FlocScaleM_sur(ex_fdata(x,label==ii), psi = "median", sig0=sig0,...)$mu ))
+  res_list<-lapply(1:k,function(ii)center_sur(ex_fdata(x,label==ii),FlocScaleM_sur(ex_fdata(x,label==ii), psi = "median", sig0_g=sig0,...)$mu ))
   res_data<-abind::abind(lapply(1:k, function(ii)res_list[[ii]]$data),along = 1)
   res<-fdata(res_data,argvals =grid )
   med<-(1/0.675)*pw_median_sur(abs(res))
@@ -553,7 +553,7 @@ scale_res_twoway_pw<-function(x,label_1,label_2,...){
 
   group_mean_ij<-list()
   for (ii in 1:k_1) {
-    group_mean_ij[[ii]]<-lapply(1:k_2,function(jj)FlocScaleM(x[label_1==ii&label_2==jj],psi = "median", sig0=sig0,...)$mu  )
+    group_mean_ij[[ii]]<-lapply(1:k_2,function(jj)FlocScaleM(x[label_1==ii&label_2==jj],psi = "median", sig0_g=sig0,...)$mu  )
   }
 
 
@@ -604,10 +604,9 @@ scale_res_twoway_pw_sur<-function(x,label_1,label_2,...){
 #' functional mean, among groups of a functional data by being robust against the presence of outliers  (Centofanti et al., 2021).
 #' @param X Either an object of class  \code{fdata} for monodimensional functional data  or an object of class \code{fdata2d} for bi-dimensional functional data.
 #' @param label_1 A vector of containing group label corresponding to the first main effect.
-#' @param label_2 A vector of containing group label corresponding to the first main effect. If it is NULL, the one-way RoFANOVA is performed.
+#' @param label_2 A vector of containing group label corresponding to the second main effect. If it is NULL, the one-way RoFANOVA is performed.
 #'  Otherwise, the two-way RoFANOVA with interaction is employed. Default is NULL.
 #' @param B  The number of permutations used to approximate the p-value in the permutation test. Default is 1000.
-#' @param cores If \code{cores}>1, then parallel computing is used, with \code{cores} cores. Default is 1.
 #'  @param family The family of loss function for the calcualtion of the equivariant functional M-estimator. The values allowed are
 #'  "bisquare" for the bisquare or Tukey's biweight family of loss functions;  "huber" for the the Huber's family of loss functions;
 #'    "optimal" for the  optimal family of loss functions; "hampel" for the the Hampel's family of loss functions; "median" for the median loss function.
@@ -619,40 +618,42 @@ scale_res_twoway_pw_sur<-function(x,label_1,label_2,...){
 #' @param maxit The maximum number of iterations allowed in the re-weighted least-squares algorithm to compute the equivariant functional M-estimator.
 #' @param tol The tolerance for the stopping condition of the re-weighted least-squares algorithm to compute the equivariant functional M-estimator.
 #' The algorithm stops when the relative variation of the weighted norm sum between two consecutive iterations is less than \code{tol}.
-#' @return   A list containing the following arguments:
-#' \code{mod} that is a list composed by
-#' \itemize{
-#' \item \code{data}: A list containing the vectorized form of \code{X}, \code{timeindex}, and \code{curve}. For functional data observed over a regular grid \code{timeindex} and \code{curve} are trivially obtained.
+#' @param cores If \code{cores}>1, then parallel computing is used, with \code{cores} cores. Default is 1.
+#' @return
+#'  \code{pval_vec} Vector of p-value of corresponding to the test of the main effects and the interaction.  For one-way RoFANOVA, it is the p-value corresponding to the test of the main effect.
 #'
-#' \item \code{parameters}: A list containing all the estimated parameters.
+#'  \code{Tr_obs} The observed value of the test statistic.
 #'
-#' \item \code{vars}: A list containing results from the Expectation step of the ECM algorithm.
+#'  \code{Tr_perm} The values of the test statistic for each permutation.
 #'
-#' \item \code{FullS}: The matrix of B-spline computed over \code{grid}.
-#'
-#' \item \code{grid}: The vector of time points where the curves are sampled.
-#'
-#' \item \code{W}: The basis roughness penalty matrix containing the inner products of pairs of basis function second derivatives.
-#'
-#' \item \code{AW_vec}: Vectorized version of the diagonal matrix used in the approximation of FAPFP.
-#'
-#' \item \code{P_tot}: Sparse Matrix used to compute all the pairwise comparisons in the FAPFP.
-#'
-#' \item \code{lambda_s}: Tuning parameter of the smoothness penalty.
-#'
-#' \item \code{lambda_l}: Tuning parameter of the FAPFP.
-#'}
-#'
-#'A list, named \code{clus}, containing the following arguments:
+#'   \code{mod} A list containing the following arguments:
 #'\itemize{
-#' \item \code{classes}: The vector of cluster membership.
+#' \item \code{Tr}: The observed value of the test statistic.
 #'
-#' \item \code{po_pr}: Posterior probabilities of cluster membership.
+#' \item\code{global_mean}: The robust estimate of functional grand mean.
+#'
+#' \item\code{group_mean_1}: The robust estimate of the first functional main effect.
+#'
+#' \item\code{group_mean_2}: The robust estimate of the second functional main effect. For one-way RoFANOVA, it is NULL.
+#'
+#' \item\code{group_mean_ij}: The robust estimate of the group functional mean. For one-way, it RoFANOVA is NULL.
+#'
+#' \item\code{scale}: The robust estimate of functional standard deviation.
+#'
+#' \item\code{scale_1}: The robust estimate of functional standard deviation corresponding to the first functional main effect.
+#'
+#' \item\code{scale_2}: The robust estimate of functional standard deviation corresponding to the second functional main effect. For one-way RoFANOVA, it is NULL.
+#'
+#' \item\code{scale_re}: The robust estimate of the  functional standard deviation of the error distribution. For one-way RoFANOVA, it is NULL.
+#'
+#' \item\code{X}: The variable \code{X}.
+#'
+#' \item\code{label_1}: The vector of containing group label corresponding to the first main effect.
+#'
+#'  \item\code{label_2}: The vector of containing group label corresponding to the second main effect. For one-way RoFANOVA, it is NULL.
+#'
+#'  \item\code{family}: The family of loss function for the calcualtion of the equivariant functional M-estimator.
 #'}
-#'
-#'\code{mean_fd} The estimated cluster mean functions.
-#'
-#'\code{class} A label for the output type.
 #'@seealso \code{\link{sasfclust_cv}}
 #'
 #' @export
@@ -661,14 +662,22 @@ scale_res_twoway_pw_sur<-function(x,label_1,label_2,...){
 #' Sparse and Smooth Functional Data Clustering.
 #' \emph{arXiv preprint arXiv:2103.15224}.
 #'
-#' Ramsay, J., Ramsay, J., & Silverman, B. W. (2005). Functional Data Analysis. Springer Science & Business Media.
 #' @examples
-#' library(sasfunclust)
-#' train<-simulate_data("Scenario I",n_i=20,var_e = 1,var_b = 0.5^2)
-#' mod<-sasfclust(X=train$X,grid=train$grid,lambda_s = 10^-6,lambda_l =10,G = 2,maxit = 5,q=10)
-#' plot(mod)
-#' @importFrom matrixcalc vec
-#' @importFrom fda create.bspline.basis fd plot.fd
+#'
+#' library(rofanova)
+#' data_out<-simulate_data(scenario="one-way")
+#' label=data_out$label
+#' X_fdata<-data_out$X_fdata
+#' per_list_median<-rofanova(X_fdata,label,B = 10,eff=eff,family="median")
+#' pvalue_median<-per_list_median$pval
+#' per_list_huber<-rofanova(X_fdata,label,B = 10,eff=eff,family="huber")
+#' pvalue_huber<-per_list_huber$pval
+#' per_list_bisquare<-rofanova(X_fdata,label,B = 10,eff=eff,family="bisquare")
+#' pvalue_bisquare<-per_list_bisquare$pval
+#' per_list_hampel<-rofanova(X_fdata,label,B = 10,eff=eff,family="hampel")
+#' pvalue_hampel<-per_list_hampel$pval
+#' per_list_optimal<-rofanova(X_fdata,label,B = 10,eff=eff,family="optimal")
+#' pvalue_optimal<-per_list_optimal$pval
 rofanova<-function(X,label_1,label_2=NULL,B=100,cores=1,family="bisquare",eff=0.95,mu0_g=NULL,scale=NULL,maxit = 50, tol = 1e-04){
 
   if(length(dim(X_fdata$data))==2){
@@ -697,8 +706,8 @@ rofanova_oneway<-function(X,label,family="bisquare",eff = 0.95, maxit = 100, tol
   n=length(label)
   grid<-X$argvals
   if(is.null(scale))scale<-scale_res_oneway_pw(X,label,eff = eff,tol=tol, maxit = maxit,mu0_g=mu0_g )##median absolute value residual full model#146
-  global_mean<-FlocScaleM(X,psi = family, eff = eff, maxit = maxit, tol =tol,sig0 = scale,mu0_g=mu0_g)$mu
-  group_mean<-lapply(1:k,function(ii)FlocScaleM(X[label==ii],psi=family,eff = eff, maxit = maxit, tol = tol,sig0 = scale,mu0_g=mu0_g)$mu  )
+  global_mean<-FlocScaleM(X,psi = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale,mu0_g=mu0_g)$mu
+  group_mean<-lapply(1:k,function(ii)FlocScaleM(X[label==ii],psi=family,eff = eff, maxit = maxit, tol = tol,sig0_g = scale,mu0_g=mu0_g)$mu  )
 
   sum_1_i<-stdandar(X,global_mean,scale)
   norm_tot<-norm_fdata_c(sum_1_i)
@@ -716,10 +725,16 @@ rofanova_oneway<-function(X,label,family="bisquare",eff = 0.95, maxit = 100, tol
 
   out<-list(Tr=Tr,
             global_mean=global_mean,
-            group_mean=group_mean,
+            group_mean_1=group_mean,
+            group_mean_2=NULL,
+            group_mean_ij=NULL,
             scale=scale,
-            X_fdata=X,
-            label=label,
+            scale_1=NULL,
+            scale_2=NULL,
+            scale_re=NULL,
+            X=X,
+            label_1=label_1,
+            label_2=NULL,
             family=family)
   return(out)
 
@@ -728,7 +743,9 @@ rofanova_oneway_perm<-function(X,label,B=100,cores=1,eff=0.95,family="bisquare",
   print("One-way RoFANOVA")
   n<-length(label)
 
-  Tr_obs<-rofanova_oneway(X,label,eff=eff,family=family,mu0_g=mu0_g,scale=scale,maxit = maxit, tol = tol)$Tr
+
+  mod_rofanova<-rofanova_oneway(X,label,eff=eff,family=family,mu0_g=mu0_g,scale=scale,maxit = maxit, tol = tol)
+  Tr_obs<-mod_rofanova$Tr
   perm_mat<-t(sapply(1:B,function(ii)sample(1:n,replace = F)))
   per_fun<-function(kkk){
     perm_comb<-perm_mat[kkk,]
@@ -753,9 +770,10 @@ rofanova_oneway_perm<-function(X,label,B=100,cores=1,eff=0.95,family="bisquare",
 
   Tr_perm<-unlist(per_list)
   pval<-sum(Tr_perm>=Tr_obs)/B
-  out<-list(pval=pval,
+  out<-list(pval_vec=pval,
             Tr_obs=Tr_obs,
-            Tr_perm=Tr_perm)
+            Tr_perm=Tr_perm,
+            mod=mod_rofanova)
   return(out)
 
 }
@@ -771,12 +789,12 @@ rofanova_twoway<-function(X,label_1,label_2=NULL,family="bisquare",eff = 0.95, m
     scale_1<-scale_res_oneway_pw(X,label_1,eff = eff,tol=tol, maxit = maxit,mu0_g=mu0_g  )
     scale_2<-scale_res_oneway_pw(X,label_2,eff = eff,tol=tol, maxit = maxit,mu0_g=mu0_g  )
     if(is.null(scale))scale<-scale_fun_pw(X,eff = eff,tol=tol, maxit = maxit,mu0_g=mu0_g)
-    global_mean<-FlocScaleM(X,psi = family, eff = eff, maxit = maxit, tol =tol,sig0 = scale,mu0_g=mu0_g)$mu
-    group_mean_1<-lapply(1:k_1,function(ii)FlocScaleM(X[label_1==ii],psi = family, eff = eff, maxit = maxit, tol =tol,sig0 = scale_1,mu0_g=mu0_g)$mu )
-    group_mean_2<-lapply(1:k_2,function(ii)FlocScaleM(X[label_2==ii],psi = family, eff = eff, maxit = maxit, tol =tol,sig0 = scale_2,mu0_g=mu0_g)$mu  )
+    global_mean<-FlocScaleM(X,psi = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale,mu0_g=mu0_g)$mu
+    group_mean_1<-lapply(1:k_1,function(ii)FlocScaleM(X[label_1==ii],psi = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale_1,mu0_g=mu0_g)$mu )
+    group_mean_2<-lapply(1:k_2,function(ii)FlocScaleM(X[label_2==ii],psi = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale_2,mu0_g=mu0_g)$mu  )
     group_mean_ij<-list()
     for (ii in 1:k_1) {
-      group_mean_ij[[ii]]<-lapply(1:k_2,function(jj)FlocScaleM(X[label_1==ii&label_2==jj],psi = family, eff = eff, maxit = maxit, tol =tol,sig0 = scale_res,mu0_g=mu0_g)$mu  )
+      group_mean_ij[[ii]]<-lapply(1:k_2,function(jj)FlocScaleM(X[label_1==ii&label_2==jj],psi = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale_res,mu0_g=mu0_g)$mu  )
     }
 
 
@@ -853,14 +871,17 @@ rofanova_twoway<-function(X,label_1,label_2=NULL,family="bisquare",eff = 0.95, m
     Tr_f2<-(1/((k_2-1)))*(sum_red-sum_full)
 
 
-    Tr_tot<-rbind(Tr_full,Tr_int,Tr_f1,Tr_f2)
-    rownames(Tr_tot)<-c("MOD","INT","F1","F2")
-    out<-list(Tr_tot=Tr_tot,
+    Tr<-rbind(Tr_full,Tr_int,Tr_f1,Tr_f2)
+    rownames(Tr)<-c("MOD","INT","F1","F2")
+    out<-list(Tr=Tr,
               global_mean=global_mean,
               group_mean_1=group_mean_1,
               group_mean_2=group_mean_2,
               group_mean_ij=group_mean_ij,
-              scale_res=scale_res,
+              scale=scale,
+              scale_1=scale_1,
+              scale_2=scale_2,
+              scale_re=scale_res,
               X_fdata=X,
               label_1=label_1,
               label_2=label_2,
@@ -873,13 +894,14 @@ rofanova_twoway_perm<-function(X,label_1,label_2=NULL,B=100,cores=1,eff=0.95,fam
 
     print("Two-way RoFANOVA")
     n<-length(label_1)
-    Tr_obs<-rofanova_twoway(X,label_1,label_2,eff=eff,family=family,mu0_g=mu0_g,scale=scale,maxit = maxit, tol = tol)$Tr_tot
+    mod_rofanova<-rofanova_twoway(X,label_1,label_2,eff=eff,family=family,mu0_g=mu0_g,scale=scale,maxit = maxit, tol = tol)
+    Tr_obs<-mod_rofanova$Tr
 
 
     per_fun<-function(kkk){
       perm_comb<-sample(1:n,replace = F)
       X_per<-X[perm_comb]
-      return(rofanova_twoway(X_per,label_1,label_2,eff=eff,family=family,mu0_g=mu0_g,scale=scale,maxit = maxit, tol = tol)$Tr_tot)
+      return(rofanova_twoway(X_per,label_1,label_2,eff=eff,family=family,mu0_g=mu0_g,scale=scale,maxit = maxit, tol = tol)$Tr)
     }
     if(cores==1){
       per_list<-lapply(1:B,per_fun)
@@ -908,7 +930,8 @@ rofanova_twoway_perm<-function(X,label_1,label_2=NULL,B=100,cores=1,eff=0.95,fam
 
   out<-list(pval_vec=pval_vec,
             Tr_obs=Tr_obs,
-            Tr_perm=Tr_perm)
+            Tr_perm=Tr_perm,
+            mod=mod_rofanova)
   return(out)
 
 }
@@ -920,8 +943,8 @@ rofanova_oneway_sur<-function(X,label,family="bisquare",eff = 0.95, maxit = 100,
   n=length(label)
   grid<-X$argvals
   if(is.null(scale))scale<-scale_res_oneway_pw_sur(X,label,eff = eff,tol=tol, maxit = maxit,mu0_g=mu0_g )##median absolute value residual full model#146
-  global_mean<-FlocScaleM_sur(X,psi = family, eff = eff, maxit = maxit, tol =tol,sig0 = scale,mu0_g=mu0_g)$mu
-  group_mean<-lapply(1:k,function(ii)FlocScaleM_sur(ex_fdata(X,label==ii),psi=family,eff = eff, maxit = maxit, tol = tol,sig0 = scale,mu0_g=mu0_g)$mu  )
+  global_mean<-FlocScaleM_sur(X,psi = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale,mu0_g=mu0_g)$mu
+  group_mean<-lapply(1:k,function(ii)FlocScaleM_sur(ex_fdata(X,label==ii),psi=family,eff = eff, maxit = maxit, tol = tol,sig0_g = scale,mu0_g=mu0_g)$mu  )
 
   sum_1_i<-stdandar_sur(X,global_mean,scale)
   norm_tot<-norm_fdata_c_sur(sum_1_i)
@@ -940,10 +963,16 @@ rofanova_oneway_sur<-function(X,label,family="bisquare",eff = 0.95, maxit = 100,
 
   out<-list(Tr=Tr,
             global_mean=global_mean,
-            group_mean=group_mean,
+            group_mean_1=group_mean,
+            group_mean_2=NULL,
+            group_mean_ij=NULL,
             scale=scale,
-            X_fdata=X,
-            label=label,
+            scale_1=NULL,
+            scale_2=NULL,
+            scale_re=NULL,
+            X=X,
+            label_1=label_1,
+            label_2=NULL,
             family=family)
   return(out)
 
@@ -951,8 +980,8 @@ rofanova_oneway_sur<-function(X,label,family="bisquare",eff = 0.95, maxit = 100,
 rofanova_oneway_perm_sur<-function(X,label,B=100,cores=1,eff=0.95,family="bisquare",mu0_g=NULL,scale=NULL,maxit = 50, tol = 1e-04){
   print("One-way bivariate RoFANOVA")
   n<-length(label)
-
-  Tr_obs<-rofanova_oneway_sur(X,label,eff=eff,family=family,mu0_g=mu0_g,scale=scale,maxit = maxit, tol = tol)$Tr
+  mod_rofanova<-rofanova_oneway_sur(X,label,eff=eff,family=family,mu0_g=mu0_g,scale=scale,maxit = maxit, tol = tol)
+  Tr_obs<-mod_rofanova$Tr
   perm_mat<-t(sapply(1:B,function(ii)sample(1:n,replace = F)))
   per_fun<-function(kkk){
     perm_comb<-sample(1:n,replace = F)
@@ -986,13 +1015,13 @@ rofanova_twoway_perm_sur<-function(X,label_1,label_2=NA,B=100,cores=1,eff=0.95,f
 
   print("Two-way bivariate RoFANOVA")
   n<-length(label_1)
-  mod_obs<-rofanova_twoway_sur(X,label_1,label_2,eff=eff,family=family,mu0_g=mu0_g,scale=scale,maxit = maxit, tol = tol)
-  Tr_obs<-mod_obs$Tr_tot
+  mod_rofanova<-rofanova_twoway_sur(X,label_1,label_2,eff=eff,family=family,mu0_g=mu0_g,scale=scale,maxit = maxit, tol = tol)
+  Tr_obs<-mod_rofanova$Tr
 
   per_fun<-function(kkk){
     perm_comb<-sample(1:n,replace = F)
     X_per<-ex_fdata(X,perm_comb)
-    return(rofanova_twoway_sur(X_per,label_1,label_2,eff=eff,family=family,mu0_g=mu0_g,scale=scale,maxit = maxit, tol = tol)$Tr_tot)
+    return(rofanova_twoway_sur(X_per,label_1,label_2,eff=eff,family=family,mu0_g=mu0_g,scale=scale,maxit = maxit, tol = tol)$Tr)
   }
   if(cores==1){
     per_list<-lapply(1:B,per_fun)
@@ -1037,12 +1066,12 @@ rofanova_twoway_sur<-function(X,label_1,label_2=NA,family="bisquare",eff = 0.95,
     for (ii in 1:k_1) {
       scale_res_ij[[ii]]<-lapply(1:k_2,function(jj)scale_fun_pw_sur(ex_fdata(X,label_1==ii&label_2==jj), eff = eff, maxit = maxit, tol =tol)  )
     }
-    global_mean<-FlocScaleM_sur(X,psi = family, eff = eff, maxit = maxit, tol =tol,sig0=scale,mu0_g=mu0_g)$mu
-    group_mean_1<-lapply(1:k_1,function(ii)FlocScaleM_sur(ex_fdata(X,label_1==ii),psi = family, eff = eff, maxit = maxit, tol =tol,sig0 = scale_1[[ii]],mu0_g=mu0_g )$mu )
-    group_mean_2<-lapply(1:k_2,function(ii)FlocScaleM_sur(ex_fdata(X,label_2==ii),psi = family, eff = eff, maxit = maxit, tol =tol,sig0 = scale_2[[ii]],mu0_g=mu0_g )$mu  )
+    global_mean<-FlocScaleM_sur(X,psi = family, eff = eff, maxit = maxit, tol =tol,sig0_g=scale,mu0_g=mu0_g)$mu
+    group_mean_1<-lapply(1:k_1,function(ii)FlocScaleM_sur(ex_fdata(X,label_1==ii),psi = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale_1[[ii]],mu0_g=mu0_g )$mu )
+    group_mean_2<-lapply(1:k_2,function(ii)FlocScaleM_sur(ex_fdata(X,label_2==ii),psi = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale_2[[ii]],mu0_g=mu0_g )$mu  )
     group_mean_ij<-list()
     for (ii in 1:k_1) {
-      group_mean_ij[[ii]]<-lapply(1:k_2,function(jj)FlocScaleM_sur(ex_fdata(X,label_1==ii&label_2==jj),psi = family, eff = eff, maxit = maxit, tol =tol,sig0 = scale_res_ij[[ii]][[jj]],mu0_g=mu0_g )$mu  )
+      group_mean_ij[[ii]]<-lapply(1:k_2,function(jj)FlocScaleM_sur(ex_fdata(X,label_1==ii&label_2==jj),psi = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale_res_ij[[ii]][[jj]],mu0_g=mu0_g )$mu  )
     }
 
 
@@ -1122,14 +1151,17 @@ rofanova_twoway_sur<-function(X,label_1,label_2=NA,family="bisquare",eff = 0.95,
     Tr_f2<-(1/((k_2-1)))*(sum_red-sum_full)
 
 
-    Tr_tot<-rbind(Tr_full,Tr_int,Tr_f1,Tr_f2)
-    rownames(Tr_tot)<-c("MOD","INT","F1","F2")
-    out<-list(Tr_tot=Tr_tot,
+    Tr<-rbind(Tr_full,Tr_int,Tr_f1,Tr_f2)
+    rownames(Tr)<-c("MOD","INT","F1","F2")
+    out<-list(Tr=Tr,
               global_mean=global_mean,
               group_mean_1=group_mean_1,
               group_mean_2=group_mean_2,
               group_mean_ij=group_mean_ij,
-              scale_res=scale_res,
+              scale=scale,
+              scale_1=scale_1,
+              scale_2=scale_2,
+              scale_re=scale_res,
               X_fdata=X,
               label_1=label_1,
               label_2=label_2,
@@ -1226,9 +1258,9 @@ fanova_twoway<-function(X,label_1,label_2){
   T_2<-c(numden=T_numden_2,full=T_full_2)
 
 
-  Tr_tot<-rbind(T_mod,T_int,T_1,T_2)
-  rownames(Tr_tot)<-c("MOD","INT","F1","F2")
-  out<-list(Tr_tot=Tr_tot,
+  Tr<-rbind(T_mod,T_int,T_1,T_2)
+  rownames(Tr)<-c("MOD","INT","F1","F2")
+  out<-list(Tr=Tr,
             global_mean=global_mean,
             group_mean_1=group_mean_1,
             group_mean_2=group_mean_2,
@@ -1242,12 +1274,12 @@ fanova_twoway_perm<-function(X,label_1,label_2,B=100,...){
 
   n<-length(label_1)
 
-  Tr_obs<-fanova_twoway(X,label_1,label_2)$Tr_tot
+  Tr_obs<-fanova_twoway(X,label_1,label_2)$Tr
   perm_mat<-t(sapply(1:B,function(ii)sample(1:n,replace = F)))
   per_fun<-function(kkk){
     perm_comb<-perm_mat[kkk,]
     X_per<-X[perm_comb]
-    return(fanova_twoway(X_per,label_1,label_2)$Tr_tot)
+    return(fanova_twoway(X_per,label_1,label_2)$Tr)
   }
   per_list<-mclapply(1:B,per_fun,mc.cores = detectCores())
 
@@ -1360,9 +1392,9 @@ fanova_twoway_sur<-function(X,label_1,label_2){
   T_2<-c(numden=T_numden_2,full=T_full_2)
 
 
-  Tr_tot<-rbind(T_mod,T_int,T_1,T_2)
-  rownames(Tr_tot)<-c("MOD","INT","F1","F2")
-  out<-list(Tr_tot=Tr_tot,
+  Tr<-rbind(T_mod,T_int,T_1,T_2)
+  rownames(Tr)<-c("MOD","INT","F1","F2")
+  out<-list(Tr=Tr,
             global_mean=global_mean,
             group_mean_1=group_mean_1,
             group_mean_2=group_mean_2,
@@ -1377,12 +1409,12 @@ fanova_twoway_perm_sur<-function(X,label_1,label_2,B=100,...){
 
   n<-length(label_1)
 
-  Tr_obs<-fanova_twoway_sur(X,label_1,label_2)$Tr_tot
+  Tr_obs<-fanova_twoway_sur(X,label_1,label_2)$Tr
   perm_mat<-t(sapply(1:B,function(ii)sample(1:n,replace = F)))
   per_fun<-function(kkk){
     perm_comb<-perm_mat[kkk,]
     X_per<-ex_fdata(X,perm_comb)
-    return(fanova_twoway_sur(X_per,label_1,label_2)$Tr_tot)
+    return(fanova_twoway_sur(X_per,label_1,label_2)$Tr)
   }
   per_list<-mclapply(1:B,per_fun,mc.cores = detectCores())
 

@@ -2,9 +2,7 @@
 
 export(rofanova)
 export(simulate_data)
+import(fda.usc)
+import(robustbase)
 importFrom(Rcpp,sourceCpp)
-importFrom(fda,create.bspline.basis)
-importFrom(fda,fd)
-importFrom(fda,plot.fd)
-importFrom(matrixcalc,vec)
 useDynLib(rofanova, .registration = TRUE)
