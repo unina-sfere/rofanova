@@ -26,13 +26,14 @@ rofanova(
 \item{label_2}{A vector of containing group label corresponding to the second main effect. If it is NULL, the one-way RoFANOVA is performed.
 Otherwise, the two-way RoFANOVA with interaction is employed. Default is NULL.}
 
-\item{B}{The number of permutations used to approximate the p-value in the permutation test. Default is 1000.
-@param family The family of loss function for the calcualtion of the equivariant functional M-estimator. The values allowed are
+\item{B}{The number of permutations used to approximate the p-value in the permutation test. Default is 1000.}
+
+\item{cores}{If \code{cores}>1, then parallel computing is used, with \code{cores} cores. Default is 1.}
+
+\item{family}{The family of loss function for the calcualtion of the equivariant functional M-estimator. The values allowed are
 "bisquare" for the bisquare or Tukey's biweight family of loss functions;  "huber" for the the Huber's family of loss functions;
   "optimal" for the  optimal family of loss functions; "hampel" for the the Hampel's family of loss functions; "median" for the median loss function.
   A non-robust functional estimator of the mean based on the standard least squares loss function is used with the value "mean". Default is "bisquare".}
-
-\item{cores}{If \code{cores}>1, then parallel computing is used, with \code{cores} cores. Default is 1.}
 
 \item{eff}{Asymptotic efficiency of the equivariant functional M-estimator. When \code{family} is either "mean" or "median", \code{eff} is ignored.}
 
@@ -87,20 +88,21 @@ Robust Functional Analysis of Variance (RoFANOVA) allows identifying the presenc
 functional mean, among groups of a functional data by being robust against the presence of outliers  (Centofanti et al., 2021).
 }
 \examples{
-
 library(rofanova)
 data_out<-simulate_data(scenario="one-way")
-label=data_out$label
+label_1=data_out$label_1
 X_fdata<-data_out$X_fdata
-per_list_median<-rofanova(X_fdata,label,B = 10,eff=eff,family="median")
-pvalue_median<-per_list_median$pval
-per_list_huber<-rofanova(X_fdata,label,B = 10,eff=eff,family="huber")
-pvalue_huber<-per_list_huber$pval
-per_list_bisquare<-rofanova(X_fdata,label,B = 10,eff=eff,family="bisquare")
-pvalue_bisquare<-per_list_bisquare$pval
-per_list_hampel<-rofanova(X_fdata,label,B = 10,eff=eff,family="hampel")
-pvalue_hampel<-per_list_hampel$pval
-per_list_optimal<-rofanova(X_fdata,label,B = 10,eff=eff,family="optimal")
+B=10
+cores=1
+per_list_median<-rofanova(X_fdata,label_1,B = B,family="median",cores=cores)
+pvalue_median_vec<-per_list_median$pval_vec
+per_list_huber<-rofanova(X_fdata,label_1,B = B,family="huber",cores=cores)
+pvalue_huber_vec<-per_list_huber$pval_vec
+per_list_bisquare<-rofanova(X_fdata,label_1,B = B,family="bisquare",cores=cores)
+pvalue_bisquare_vec<-per_list_bisquare$pval_vec
+per_list_hampel<-rofanova(X_fdata,label_1,B = B,family="hampel",cores=cores)
+pvalue_hampel_vec<-per_list_hampel$pval_vec
+per_list_optimal<-rofanova(X_fdata,label_1,B = B,family="optimal",cores=cores)
 pvalue_optimal<-per_list_optimal$pval
 }
 \references{
@@ -109,5 +111,5 @@ Sparse and Smooth Functional Data Clustering.
 \emph{arXiv preprint arXiv:2103.15224}.
 }
 \seealso{
-\code{\link{sasfclust_cv}}
+\code{\link{fusem}} \code{\link{funmad}}
 }

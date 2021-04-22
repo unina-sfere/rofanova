@@ -27,24 +27,24 @@ NULL
 #' Sparse and Smooth Functional Data Clustering.
 #' \emph{arXiv preprint arXiv:2103.15224}.
 #'
-#' @seealso \code{\link{rofanova}},  \code{\link{sasfclust_cv}}
+#' @seealso \code{\link{fusem}} \code{\link{funmad}}
 #' @examples
-#' \donttest{
-#' library(rofanova)
+##' library(rofanova)
 #' data_out<-simulate_data(scenario="one-way")
-#' label=data_out$label
+#' label_1=data_out$label_1
 #' X_fdata<-data_out$X_fdata
-#' per_list_median<-rofanova(X_fdata,label,B = 10,eff=eff,family="median")
-#' pvalue_median<-per_list_median$pval
-#' per_list_huber<-rofanova(X_fdata,label,B = 10,eff=eff,family="huber")
-#' pvalue_huber<-per_list_huber$pval
-#' per_list_bisquare<-rofanova(X_fdata,label,B = 10,eff=eff,family="bisquare")
-#' pvalue_bisquare<-per_list_bisquare$pval
-#' per_list_hampel<-rofanova(X_fdata,label,B = 10,eff=eff,family="hampel")
-#' pvalue_hampel<-per_list_hampel$pval
-#' per_list_optimal<-rofanova(X_fdata,label,B = 10,eff=eff,family="optimal")
+#' B=10
+#' cores=1
+#' per_list_median<-rofanova(X_fdata,label_1,B = B,family="median",cores=cores)
+#' pvalue_median_vec<-per_list_median$pval_vec
+#' per_list_huber<-rofanova(X_fdata,label_1,B = B,family="huber",cores=cores)
+#' pvalue_huber_vec<-per_list_huber$pval_vec
+#' per_list_bisquare<-rofanova(X_fdata,label_1,B = B,family="bisquare",cores=cores)
+#' pvalue_bisquare_vec<-per_list_bisquare$pval_vec
+#' per_list_hampel<-rofanova(X_fdata,label_1,B = B,family="hampel",cores=cores)
+#' pvalue_hampel_vec<-per_list_hampel$pval_vec
+#' per_list_optimal<-rofanova(X_fdata,label_1,B = B,family="optimal",cores=cores)
 #' pvalue_optimal<-per_list_optimal$pval
-#'}
 #'@import fda.usc robustbase
 "_PACKAGE"
 

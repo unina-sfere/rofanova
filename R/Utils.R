@@ -28,7 +28,7 @@ func.mean_sur<-function (fdataobj)
 {
   n<-dim(fdataobj$data)[1]
   pro<-array(NA,dim = c(1,dim(fdataobj$data)[2],dim(fdataobj$data)[3]))
-  pro[1,,] <-apply(fdataobj$data , c(2,3), mean)
+  pro[1,,] <-apply(fdataobj$data , c(2,3), base::mean)
   fdataobj$data<-pro
   fdataobj$names$main <- "mean"
   fdataobj
@@ -38,7 +38,7 @@ func.var_sur<-function (fdataobj)
 
   n<-dim(fdataobj$data)[1]
   pro<-array(NA,dim = c(1,dim(fdataobj$data)[2],dim(fdataobj$data)[3]))
-  pro[1,,] <-apply(fdataobj$data , c(2,3), var)
+  pro[1,,] <-apply(fdataobj$data , c(2,3), stats::var)
   fdataobj$data<-pro
   fdataobj$names$main <- "var"
   fdataobj

@@ -1,14 +1,61 @@
 
 # Simulate data -----------------------------------------------------------
 
-
+#' @title Simulate data for Robust Functional ANOVA
+#' @description Generate synthetic data as in the simulation study of Centofanti et al. (2021) with the addition of the case of bi-variate functional data. All the details are in  Centofanti et al. (2021).
+#' @param scenario  A  character strings indicating the scenario considered. It could be "one-way", "two-way", "one-way surface" and "two-way surface".
+#' @param mean A character strings indicating the type of mean functionin one-way ANOVA. It could be "M1", "M2", and "M3".
+#' @param con A character strings indicating the type of contamination function. It could be "C0", for no contamination, "C1", "C2", "C3", "C4", "C5", and "C6".
+#' @param p The parameter related to the bernoulli variable in the contamination function.
+#' @param M The contamination size constant.
+#' @param n_i The number of observation for each group.
+#' @param k_1 The number of level for the first main effect.
+#' @param k_2 The number of level for the second main effect. For One-way ANOVA, it is ignored.
+#' @param alpha The parameter a in the Two-way ANOVA scenarios. For One-way ANOVA, it is ignored.
+#' @param beta The parameter b in the Two-way ANOVA scenarios. For One-way ANOVA, it is ignored.
+#' @param sd The sigma parameter in the covariance of the error function.
+#' @param grid The grid over which the functional data are observed.
+#' @param err The direction of the dependence in the error function for the case of bi-variate functional data. It could be either "s", for dependence along the first dimension or "t" for dependence along the second dimension.
+#' @return
+#' A list containing the following arguments:
+#'\itemize{
+#' \item \code{X_fdata}: The generated functional data.
+#'
+#' \item\code{label_1}: The vector of containing group label corresponding to the first main effect.
+#'
+#'  \item\code{label_2}: The vector of containing group label corresponding to the second main effect. For one-way ANOVA, it is NULL.
+#'}
+#'@seealso \code{\link{rofanova}} \code{\link{fusem}} \code{\link{funmad}}
+#'
 #' @export
-simulate_data<-function(scenario="one-way",mean="M1",con="C1",p=0.1,M=1,n_i=10,k_1=3,k_2=3,alpha=0.05,beta=0.05,sd=0.01,grid=seq(0,1,length.out = 30),c=1,err="s"){
+#' @references
+#' Centofanti, F., Lepore, A., & Palumbo, B. (2021).
+#' Sparse and Smooth Functional Data Clustering.
+#' \emph{arXiv preprint arXiv:2103.15224}.
+#'
+#' @examples
+#' library(rofanova)
+#' data_out<-simulate_data(scenario="one-way")
+#' label_1=data_out$label_1
+#' X_fdata<-data_out$X_fdata
+#' B=10
+#' cores=1
+#' per_list_median<-rofanova(X_fdata,label_1,B = B,family="median",cores=cores)
+#' pvalue_median_vec<-per_list_median$pval_vec
+#' per_list_huber<-rofanova(X_fdata,label_1,B = B,family="huber",cores=cores)
+#' pvalue_huber_vec<-per_list_huber$pval_vec
+#' per_list_bisquare<-rofanova(X_fdata,label_1,B = B,family="bisquare",cores=cores)
+#' pvalue_bisquare_vec<-per_list_bisquare$pval_vec
+#' per_list_hampel<-rofanova(X_fdata,label_1,B = B,family="hampel",cores=cores)
+#' pvalue_hampel_vec<-per_list_hampel$pval_vec
+#' per_list_optimal<-rofanova(X_fdata,label_1,B = B,family="optimal",cores=cores)
+#' pvalue_optimal<-per_list_optimal$pval
+simulate_data<-function(scenario="one-way",mean="M1",con="C1",p=0.1,M=1,n_i=10,k_1=3,k_2=3,alpha=0.05,beta=0.05,sd=0.01,grid=seq(0,1,length.out = 30),err="s"){
 
   if(scenario=="one-way")
-    return(simulate_data_oneway(mean=mean,con=con,p=p,M=M,n_i=n_i,k=k_1,sd=sd,grid=grid,c=c))
+    return(simulate_data_oneway(mean=mean,con=con,p=p,M=M,n_i=n_i,k=k_1,sd=sd,grid=grid))
   if(scenario=="two-way")
-    return(simulate_data_twoway(con=con,p=p,M=M,n_i=n_i,k_1=k_1,k_2=k_2,alpha=alpha,beta=beta,sd=sd,grid=grid,c=c))
+    return(simulate_data_twoway(con=con,p=p,M=M,n_i=n_i,k_1=k_1,k_2=k_2,alpha=alpha,beta=beta,sd=sd,grid=grid))
   if(scenario=="one-way surface")
     return(simulate_data_oneway_sur(mean=mean,con=con,p=p,M=M,n_i=n_i,k=k_1,sd=sd,grid=grid,err=err))
   if(scenario=="two-way surface")
@@ -16,7 +63,7 @@ simulate_data<-function(scenario="one-way",mean="M1",con="C1",p=0.1,M=1,n_i=10,k
 
 
 }
-simulate_data_oneway<-function(mean="M1",con="C1",p=0.1,M=1,n_i=10,k=3,sd=0.01,grid=seq(0,1,length.out = 30),c=1){
+simulate_data_oneway<-function(mean="M1",con="C1",p=0.1,M=1,n_i=10,k=3,sd=0.01,grid=seq(0,1,length.out = 30)){
 
 print("Simulated data one-way")
   if(mean=="M1"){
@@ -34,12 +81,12 @@ print("Simulated data one-way")
     cont_function<-function(n_g,p_g,M_g,ii)0
   }
   else if(con=="C1"){
-    cont_function<-function(n_g,p_g,M_g,ii)M_g*matrix(rbinom(n_g,1,p_g)*sample(c(-1,1),n_g,replace = T),length(grid),n_g,byrow = T)
+    cont_function<-function(n_g,p_g,M_g,ii)M_g*matrix(stats::rbinom(n_g,1,p_g)*sample(c(-1,1),n_g,replace = T),length(grid),n_g,byrow = T)
   }
   else if(con=="C2"){
     cont_function<-function(n_g,p_g,M_g,ii){
-      T_i<-runif(n_g,0,0.75)
-      matrix_old<-M_g*matrix(rbinom(n_g,1,p_g)*sample(c(-1,1),n_g,replace = T),length(grid),n_g,byrow = T)
+      T_i<-stats::runif(n_g,0,0.75)
+      matrix_old<-M_g*matrix(stats::rbinom(n_g,1,p_g)*sample(c(-1,1),n_g,replace = T),length(grid),n_g,byrow = T)
       matrix_new<-matrix(0,length(matrix_old[,1]),n_g)
       for (ii in 1:n_g) {
         ind<-(round(T_i[ii]*(length(matrix_old[,1])-1))+1)
@@ -53,18 +100,18 @@ print("Simulated data one-way")
     cont_function<-function(n_g,p_g,M_g,ii){
       g<-mean_function(matrix(grid,length(grid),n_i),matrix(ll,length(grid),n_i))+t(rproc2fdata(n_i,t=grid,sigma="vexponential",par.list = list(scale=sd^2,theta=0.00001))$data)
       h<-mean_function(matrix(grid,length(grid),n_i),matrix(ll,length(grid),n_i))+t(rproc2fdata(n_i,t=grid,sigma="vexponential",par.list = list(scale=(sd+2)^2,theta=1))$data)
-      ber<-matrix(rbinom(n_g,1,p_g),length(grid),n_g,byrow = T)
+      ber<-matrix(stats::rbinom(n_g,1,p_g),length(grid),n_g,byrow = T)
       out<-(1-ber)*g+ber*h
       return(out)
     }
   }
   else if(con=="C4"){
-    cont_function<-function(n_g,p_g,M_g,ii)(-1)^(ii)*M_g*matrix(rbinom(n_g,1,p_g),length(grid),n_g,byrow = T)
+    cont_function<-function(n_g,p_g,M_g,ii)(-1)^(ii)*M_g*matrix(stats::rbinom(n_g,1,p_g),length(grid),n_g,byrow = T)
   }
   else if(con=="C5"){
     cont_function<-function(n_g,p_g,M_g,ii){
-      T_i<-runif(n_g,0,0.75)
-      matrix_old<-(-1)^(ii)*M_g*matrix(rbinom(n_g,1,p_g),length(grid),n_g,byrow = T)
+      T_i<-stats::runif(n_g,0,0.75)
+      matrix_old<-(-1)^(ii)*M_g*matrix(stats::rbinom(n_g,1,p_g),length(grid),n_g,byrow = T)
       matrix_new<-matrix(0,length(matrix_old[,1]),n_g)
       for (ll in 1:n_g) {
         ind<-(round(T_i[ll]*(length(matrix_old[,1])-1))+1)
@@ -78,7 +125,7 @@ print("Simulated data one-way")
     cont_function<-function(n_g,p_g,M_g,ii){
       g<-mean_function(matrix(grid,length(grid),n_i),matrix(ll,length(grid),n_i))+t(rproc2fdata(n_i,t=grid,sigma="vexponential",par.list = list(scale=sd^2,theta=0.00001))$data)
       h<-mean_function(matrix(grid,length(grid),n_i),matrix(ll,length(grid),n_i))+t(rproc2fdata(n_i,t=grid,sigma="vexponential",par.list = list(scale=(sd+2+(-1)^(ii))^2,theta=1))$data)
-      ber<-matrix(rbinom(n_g,1,p_g),length(grid),n_g,byrow = T)
+      ber<-matrix(stats::rbinom(n_g,1,p_g),length(grid),n_g,byrow = T)
       out<-(1-ber)*g+ber*h
       return(out)
     }
@@ -102,12 +149,11 @@ print("Simulated data one-way")
   X_fdata<-fdata(t(data),argvals = grid)
   label<-rep(1:k,each=n_i)
   out=list(X_fdata=X_fdata,
-           data=data,
-           label=label,
-           grid=grid)
+           label_1=label,
+           label_2=NULL)
   return(out)
 }
-simulate_data_twoway<-function(con="C1",n_i=10,k_1=3,k_2=3,p=0.1,M=1,alpha=0.05,beta=0.05,sd=0.01,grid=seq(0,1,length.out = 30),c=1){
+simulate_data_twoway<-function(con="C1",n_i=10,k_1=3,k_2=3,p=0.1,M=1,alpha=0.05,beta=0.05,sd=0.01,grid=seq(0,1,length.out = 30)){
 
 
   print("Simulated data Two-way")
@@ -125,12 +171,12 @@ simulate_data_twoway<-function(con="C1",n_i=10,k_1=3,k_2=3,p=0.1,M=1,alpha=0.05,
     cont_function<-function(n_g,p_g,M_g,ii,jj)0
   }
   else if(con=="C1"){
-    cont_function<-function(n_g,p_g,M_g,ii,jj)M_g*matrix(rbinom(n_g,1,p_g)*sample(c(-1,1),n_g,replace = T),length(grid),n_g,byrow = T)
+    cont_function<-function(n_g,p_g,M_g,ii,jj)M_g*matrix(stats::rbinom(n_g,1,p_g)*sample(c(-1,1),n_g,replace = T),length(grid),n_g,byrow = T)
   }
   else if(con=="C2"){
     cont_function<-function(n_g,p_g,M_g,ii,jj){
-      T_i<-runif(n_g,0,0.75)
-      matrix_old<-M_g*matrix(rbinom(n_g,1,p_g)*sample(c(-1,1),n_g,replace = T),length(grid),n_g,byrow = T)
+      T_i<-stats::runif(n_g,0,0.75)
+      matrix_old<-M_g*matrix(stats::rbinom(n_g,1,p_g)*sample(c(-1,1),n_g,replace = T),length(grid),n_g,byrow = T)
       matrix_new<-matrix(0,length(matrix_old[,1]),n_g)
       for (ii in 1:n_g) {
         ind<-(round(T_i[ii]*(length(matrix_old[,1])-1))+1)
@@ -144,18 +190,18 @@ simulate_data_twoway<-function(con="C1",n_i=10,k_1=3,k_2=3,p=0.1,M=1,alpha=0.05,
     cont_function<-function(n_g,p_g,M_g,ii,jj){
       g<-Y(matrix(grid,length(grid),n_i),ii,jj,alpha,beta)+t(rproc2fdata(n_i,t=grid,sigma="vexponential",par.list = list(scale=sd^2,theta=0.00001))$data)
       h<-Y(matrix(grid,length(grid),n_i),ii,jj,alpha,beta)+t(rproc2fdata(n_i,t=grid,sigma="vexponential",par.list = list(scale=(sd+2)^2,theta=1))$data)
-      ber<-matrix(rbinom(n_g,1,p_g),length(grid),n_g,byrow = T)
+      ber<-matrix(stats::rbinom(n_g,1,p_g),length(grid),n_g,byrow = T)
       out<-(1-ber)*g+ber*h
       return(out)
     }
   }
   else if(con=="C4"){
-    cont_function<-function(n_g,p_g,M_g,ii,jj)(-1)^(ii)*M_g*matrix(rbinom(n_g,1,p_g),length(grid),n_g,byrow = T)
+    cont_function<-function(n_g,p_g,M_g,ii,jj)(-1)^(ii)*M_g*matrix(stats::rbinom(n_g,1,p_g),length(grid),n_g,byrow = T)
   }
   else if(con=="C5"){
     cont_function<-function(n_g,p_g,M_g,ii,jj){
-      T_i<-runif(n_g,0,0.75)
-      matrix_old<-(-1)^(ii)*M_g*matrix(rbinom(n_g,1,p_g),length(grid),n_g,byrow = T)
+      T_i<-stats::runif(n_g,0,0.75)
+      matrix_old<-(-1)^(ii)*M_g*matrix(stats::rbinom(n_g,1,p_g),length(grid),n_g,byrow = T)
       matrix_new<-matrix(0,length(matrix_old[,1]),n_g)
       for (ll in 1:n_g) {
         ind<-(round(T_i[ll]*(length(matrix_old[,1])-1))+1)
@@ -169,7 +215,7 @@ simulate_data_twoway<-function(con="C1",n_i=10,k_1=3,k_2=3,p=0.1,M=1,alpha=0.05,
     cont_function<-function(n_g,p_g,M_g,ii,jj){
       g<-Y(matrix(grid,length(grid),n_i),ii,jj,alpha,beta)+t(rproc2fdata(n_i,t=grid,sigma="vexponential",par.list = list(scale=sd^2,theta=0.00001))$data)
       h<-Y(matrix(grid,length(grid),n_i),ii,jj,alpha,beta)+t(rproc2fdata(n_i,t=grid,sigma="vexponential",par.list = list(scale=(sd+2+(-1)^(ii))^2,theta=1))$data)
-      ber<-matrix(rbinom(n_g,1,p_g),length(grid),n_g,byrow = T)
+      ber<-matrix(stats::rbinom(n_g,1,p_g),length(grid),n_g,byrow = T)
       out<-(1-ber)*g+ber*h
       return(out)
     }
@@ -206,10 +252,8 @@ simulate_data_twoway<-function(con="C1",n_i=10,k_1=3,k_2=3,p=0.1,M=1,alpha=0.05,
   label_1<-rep(1:k_1,each=n_i*k_2)
   label_2<-rep(rep(1:k_2,each=n_i),k_1)
   out=list(X_fdata=X_fdata,
-           data=data,
            label_1=label_1,
-           label_2=label_2,
-           grid=grid)
+           label_2=label_2)
   return(out)
 }
 simulate_data_oneway_sur<-function(mean="M1",con="C1",p=0.1,M=1,n_i=10,k=3,sd=0.01,grid=seq(0,1,length.out = 30),err="s"){
@@ -227,7 +271,7 @@ simulate_data_oneway_sur<-function(mean="M1",con="C1",p=0.1,M=1,n_i=10,k=3,sd=0.
     cont_function<-function(n_g,p_g,M_g,ii)0
    }
   else if(con=="C1"){
-    cont_function<-function(n_g,p_g,M_g,ii)M_g*matrix(rbinom(n_g,1,p_g)*sample(c(-1,1),n_g,replace = T),length(grid),n_g,byrow = T)
+    cont_function<-function(n_g,p_g,M_g,ii)M_g*matrix(stats::rbinom(n_g,1,p_g)*sample(c(-1,1),n_g,replace = T),length(grid),n_g,byrow = T)
   }
 
   expand_grid<-expand.grid(grid,grid)
@@ -248,9 +292,8 @@ simulate_data_oneway_sur<-function(mean="M1",con="C1",p=0.1,M=1,n_i=10,k=3,sd=0.
 
   label<-rep(1:k,each=n_i)
   out=list(X_fdata=X_fdata,
-           data=data,
-           label=label,
-           grid=grid)
+           label_1=label,
+           label_2=NULL)
   return(out)
 }
 simulate_data_twoway_sur<-function(con="C1",n_i=10,k_1=3,k_2=3,p=0.1,M=1,alpha=0.05,beta=0.05,sd=0.01,grid=seq(0,1,length.out = 30),err="s"){
@@ -266,7 +309,7 @@ simulate_data_twoway_sur<-function(con="C1",n_i=10,k_1=3,k_2=3,p=0.1,M=1,alpha=0
     cont_function<-function(n_g,p_g,M_g)0
   }
   else if(con=="C1"){
-    cont_function<-function(n_g,p_g,M_g)M_g*matrix(rbinom(n_g,1,p_g)*sample(c(-1,1),n_g,replace = T),length(grid),n_g,byrow = T)
+    cont_function<-function(n_g,p_g,M_g)M_g*matrix(stats::rbinom(n_g,1,p_g)*sample(c(-1,1),n_g,replace = T),length(grid),n_g,byrow = T)
   }
   expand_grid<-expand.grid(grid,grid)
   data<-array(0,c(k_1*k_2*n_i,length(grid),length(grid)))
@@ -285,21 +328,54 @@ simulate_data_twoway_sur<-function(con="C1",n_i=10,k_1=3,k_2=3,p=0.1,M=1,alpha=0
   label_1<-rep(1:k_1,each=n_i*k_2)
   label_2<-rep(rep(1:k_2,each=n_i),k_1)
   out=list(X_fdata=X_fdata,
-           data=data,
            label_1=label_1,
-           label_2=label_2,
-           grid=grid)
+           label_2=label_2)
   return(out)
 }
 
 
 # Robust location/scale estimation -----------------------------------------
 
-#si
-FlocScaleM<-function (x, psi = "bisquare", eff = 0.95, maxit = 50, tol = 1e-04,mu0_g=NULL,sig0_g=NULL){
-  kpsi <- switch(psi, bisquare = 1, huber = 2, optimal = 3, median=5,mean=6,hampel=7,8)
+#' @title The scale equivariant functional M-estimator
+#' @description Compute the scale equivariant functional M-estimator as described in Centofanti et al. (2021).
+#' @param sig0_g Estimate of the standard error of \code{X}. If NUll, the functional mean is used. Default is NULL.
+#' @return
+#' A list containing the following arguments:
+#'\itemize{
+#' \item \code{mu}: The scale equivariant functional M-estimator .
+#'
+  #' \item\code{mu0_g}: \code{mu0_g}.
+#'
+#'  \item\code{sig0_g}: \code{sig0_g}.
+#'}
+#'@seealso \code{\link{rofanova}} \code{\link{funmad}}
+#'
+#' @export
+#' @references
+#' Centofanti, F., Lepore, A., & Palumbo, B. (2021).
+#' Sparse and Smooth Functional Data Clustering.
+#' \emph{arXiv preprint arXiv:2103.15224}.
+#' @inheritParams rofanova
+#' @examples
+#'
+#' library(rofanova)
+#' data_out<-simulate_data(scenario="one-way")
+#' X_fdata<-data_out$X_fdata
+#' per_list_median<-fusem(X_fdata)
+
+fusem<-function (X, family = "bisquare", eff = 0.95, maxit = 50, tol = 1e-04,mu0_g=NULL,sig0_g=NULL){
+  if(length(dim(X$data))==2)
+    return(FlocScaleM_mon(X, family = family, eff = eff, maxit = maxit, tol = tol,mu0_g=mu0_g,sig0_g=sig0_g))
+  if(length(dim(X$data))==3)
+    return(FlocScaleM_sur(X, family = family, eff = eff, maxit = maxit, tol = tol,mu0_g=mu0_g,sig0_g=sig0_g))
+
+}
+
+FlocScaleM_mon<-function (X, family = "bisquare", eff = 0.95, maxit = 50, tol = 1e-04,mu0_g=NULL,sig0_g=NULL){
+  x=X
+  kpsi <- switch(family, bisquare = 1, huber = 2, optimal = 3, median=5,mean=6,hampel=7,8)
   if (kpsi == 8) {
-    stop(paste0(psi, " - No such rho function"))
+    stop(paste0(family, " - No such rho function"))
   }
   else if (kpsi==6){
     mu0 = func.med.FM(x,trim=0.1)
@@ -333,7 +409,6 @@ FlocScaleM<-function (x, psi = "bisquare", eff = 0.95, maxit = 50, tol = 1e-04,m
 
   }
   else {
-    family=psi
     kBis = c(3.44, 3.88, 4.685)
     kHub = c(0.732, 0.981, 1.34)
     kHampel<-rbind(c(0.9539156, 1.9078312, 3.8156624),c(NA,NA,NA),c(1.3521, 3.1549, 7.2112))
@@ -374,10 +449,11 @@ FlocScaleM<-function (x, psi = "bisquare", eff = 0.95, maxit = 50, tol = 1e-04,m
 
   return(resu)
 }
-FlocScaleM_sur<-function (x, psi = "bisquare", eff = 0.95, maxit = 50, tol = 1e-04,mu0_g=NULL,sig0_g=NULL){
-  kpsi <- switch(psi, bisquare = 1, huber = 2, optimal = 3, median=5,mean=6,hampel=7,8)
+FlocScaleM_sur<-function (X, family = "bisquare", eff = 0.95, maxit = 50, tol = 1e-04,mu0_g=NULL,sig0_g=NULL){
+  x=X
+  kpsi <- switch(family, bisquare = 1, huber = 2, optimal = 3, median=5,mean=6,hampel=7,8)
   if (kpsi == 8) {
-    stop(paste0(psi, " - No such rho function"))
+    stop(paste0(family, " - No such rho function"))
   }
   else if (kpsi==6){
     mu0 = func.med.FM(x,trim=0.1)
@@ -411,7 +487,6 @@ FlocScaleM_sur<-function (x, psi = "bisquare", eff = 0.95, maxit = 50, tol = 1e-
 
   }
   else {
-    family=psi
     kBis = c(3.44, 3.88, 4.685)
     kHub = c(0.732, 0.981, 1.34)
     kHampel<-rbind(c(0.9539156, 1.9078312, 3.8156624),c(NA,NA,NA),c(1.3521, 3.1549, 7.2112))
@@ -482,29 +557,45 @@ rfun<-function (x,rho="bisquare",eff=0.95){
   }
   return(r)
 }
-scale_fun_pw<-function(x,met="FMAD",...){
 
-  if(met=="FMAD"){
-    fun<-function(x,...){
 
-      med<-FlocScaleM(x, psi = "median",...)$mu
-      diff<-abs(x-med)
-      MAD<-(1/0.675)*pw_median(diff)
-      return(MAD)
-    }
-  }
-  else if(met=="VAR"){
-    fun<-function(x,...){
-      var<-sqrt(func.var(x))
-      return(var)
-    }
-  }
-  scale<-fun(x,...)
-  return(scale)
+#' @title The functional normalized median absolute deviation estimators
+#' @description Compute  the functional normalized median absolute deviation (FuNMAD) estimator  as described in Centofanti et al. (2021).
+#' @param ... Additional argument to be passed to \code{fusem}.
+#' @return The FuNMAD estimator.
+
+#'@seealso \code{\link{rofanova}} \code{\link{fusem}}
+#'
+#' @export
+#' @references
+#' Centofanti, F., Lepore, A., & Palumbo, B. (2021).
+#' Sparse and Smooth Functional Data Clustering.
+#' \emph{arXiv preprint arXiv:2103.15224}.
+#' @inheritParams rofanova
+#' @examples
+#'
+#' library(rofanova)
+#' data_out<-simulate_data(scenario="one-way")
+#' X_fdata<-data_out$X_fdata
+#' per_list_median<-funmad(X_fdata)
+funmad<-function(X,...){
+  if(length(dim(X$data))==2)
+    return(scale_fun_pw(X,...))
+if(length(dim(X$data))==3)
+  return(scale_fun_pw_sur(X,...))
+
+}
+scale_fun_pw<-function(X,...){
+  x=X
+  med<-FlocScaleM_mon(x, family = "median",...)$mu
+  diff<-abs(x-med)
+  MAD<-(1/0.675)*pw_median(diff)
+  return(MAD)
+
 }
 scale_fun_pw_sur<-function(x,...){
 
-  med<-FlocScaleM_sur(x, psi = "median", ...)$mu
+  med<-FlocScaleM_sur(x, family = "median", ...)$mu
   diff<-abs(standardize_sur(x,med))
   MAD<-(1/0.675)*pw_median_sur(diff)
   return(MAD)
@@ -514,21 +605,22 @@ pw_median<-function(x){
   data<-x$data
   nvar<-dim(data)[2]
   grid<-x$argvals
-  data_new<-sqrt((sapply(1:nvar, function(ii)median(data[,ii])^2)))
+  data_new<-sqrt((sapply(1:nvar, function(ii)stats::median(data[,ii])^2)))
   fdata(data_new,argvals = grid)
 
 }
 pw_median_sur<-function(x){
   grid<-x$argvals
-  data_new<-apply(x$data , c(2,3), median)
+  data_new<-apply(x$data , c(2,3), stats::median)
   fdata(data_new,argvals = grid)
 
 }
+
 scale_res_oneway_pw<-function(x,label,...){
   k=length(unique(label))
   grid<-x$argval
   sig0<-fdata(rep(1,length(x$data[1,])),argvals = x$argvals)
-  res_list<-lapply(1:k,function(ii)x[label==ii]-FlocScaleM(x[label==ii], psi = "median", sig0_g=sig0,  ...)$mu )
+  res_list<-lapply(1:k,function(ii)x[label==ii]-FlocScaleM_mon(x[label==ii], family = "median", sig0_g=sig0,  ...)$mu )
   res_data<-Reduce("rbind",lapply(1:k, function(ii)res_list[[ii]]$data))
   res<-fdata(res_data,argvals =grid )
   med<-(1/0.675)*pw_median(abs(res))
@@ -539,7 +631,7 @@ scale_res_oneway_pw_sur<-function(x,label,...){
 
   grid<-x$argvals
   sig0<-fdata(array(1,dim = c(1,dim(x$data)[2],dim(x$data)[3])),argvals = x$argvals)
-  res_list<-lapply(1:k,function(ii)center_sur(ex_fdata(x,label==ii),FlocScaleM_sur(ex_fdata(x,label==ii), psi = "median", sig0_g=sig0,...)$mu ))
+  res_list<-lapply(1:k,function(ii)center_sur(ex_fdata(x,label==ii),FlocScaleM_sur(ex_fdata(x,label==ii), family = "median", sig0_g=sig0,...)$mu ))
   res_data<-abind::abind(lapply(1:k, function(ii)res_list[[ii]]$data),along = 1)
   res<-fdata(res_data,argvals =grid )
   med<-(1/0.675)*pw_median_sur(abs(res))
@@ -553,7 +645,7 @@ scale_res_twoway_pw<-function(x,label_1,label_2,...){
 
   group_mean_ij<-list()
   for (ii in 1:k_1) {
-    group_mean_ij[[ii]]<-lapply(1:k_2,function(jj)FlocScaleM(x[label_1==ii&label_2==jj],psi = "median", sig0_g=sig0,...)$mu  )
+    group_mean_ij[[ii]]<-lapply(1:k_2,function(jj)FlocScaleM_mon(x[label_1==ii&label_2==jj],family = "median", sig0_g=sig0,...)$mu  )
   }
 
 
@@ -578,7 +670,7 @@ scale_res_twoway_pw_sur<-function(x,label_1,label_2,...){
   sig0<-fdata(array(1,dim = c(1,dim(x$data)[2],dim(x$data)[3])),argvals = x$argvals)
   group_mean_ij<-list()
   for (ii in 1:k_1) {
-    group_mean_ij[[ii]]<-lapply(1:k_2,function(jj)FlocScaleM_sur(ex_fdata(x,label_1==ii&label_2==jj),psi = "median", sig0_g = sig0)$mu  )
+    group_mean_ij[[ii]]<-lapply(1:k_2,function(jj)FlocScaleM_sur(ex_fdata(x,label_1==ii&label_2==jj),family = "median", sig0_g = sig0)$mu  )
   }
 
 
@@ -607,7 +699,7 @@ scale_res_twoway_pw_sur<-function(x,label_1,label_2,...){
 #' @param label_2 A vector of containing group label corresponding to the second main effect. If it is NULL, the one-way RoFANOVA is performed.
 #'  Otherwise, the two-way RoFANOVA with interaction is employed. Default is NULL.
 #' @param B  The number of permutations used to approximate the p-value in the permutation test. Default is 1000.
-#'  @param family The family of loss function for the calcualtion of the equivariant functional M-estimator. The values allowed are
+#' @param family The family of loss function for the calcualtion of the equivariant functional M-estimator. The values allowed are
 #'  "bisquare" for the bisquare or Tukey's biweight family of loss functions;  "huber" for the the Huber's family of loss functions;
 #'    "optimal" for the  optimal family of loss functions; "hampel" for the the Hampel's family of loss functions; "median" for the median loss function.
 #'    A non-robust functional estimator of the mean based on the standard least squares loss function is used with the value "mean". Default is "bisquare".
@@ -654,7 +746,7 @@ scale_res_twoway_pw_sur<-function(x,label_1,label_2,...){
 #'
 #'  \item\code{family}: The family of loss function for the calcualtion of the equivariant functional M-estimator.
 #'}
-#'@seealso \code{\link{sasfclust_cv}}
+#'@seealso \code{\link{fusem}} \code{\link{funmad}}
 #'
 #' @export
 #' @references
@@ -663,24 +755,25 @@ scale_res_twoway_pw_sur<-function(x,label_1,label_2,...){
 #' \emph{arXiv preprint arXiv:2103.15224}.
 #'
 #' @examples
-#'
 #' library(rofanova)
 #' data_out<-simulate_data(scenario="one-way")
-#' label=data_out$label
+#' label_1=data_out$label_1
 #' X_fdata<-data_out$X_fdata
-#' per_list_median<-rofanova(X_fdata,label,B = 10,eff=eff,family="median")
-#' pvalue_median<-per_list_median$pval
-#' per_list_huber<-rofanova(X_fdata,label,B = 10,eff=eff,family="huber")
-#' pvalue_huber<-per_list_huber$pval
-#' per_list_bisquare<-rofanova(X_fdata,label,B = 10,eff=eff,family="bisquare")
-#' pvalue_bisquare<-per_list_bisquare$pval
-#' per_list_hampel<-rofanova(X_fdata,label,B = 10,eff=eff,family="hampel")
-#' pvalue_hampel<-per_list_hampel$pval
-#' per_list_optimal<-rofanova(X_fdata,label,B = 10,eff=eff,family="optimal")
+#' B=10
+#' cores=1
+#' per_list_median<-rofanova(X_fdata,label_1,B = B,family="median",cores=cores)
+#' pvalue_median_vec<-per_list_median$pval_vec
+#' per_list_huber<-rofanova(X_fdata,label_1,B = B,family="huber",cores=cores)
+#' pvalue_huber_vec<-per_list_huber$pval_vec
+#' per_list_bisquare<-rofanova(X_fdata,label_1,B = B,family="bisquare",cores=cores)
+#' pvalue_bisquare_vec<-per_list_bisquare$pval_vec
+#' per_list_hampel<-rofanova(X_fdata,label_1,B = B,family="hampel",cores=cores)
+#' pvalue_hampel_vec<-per_list_hampel$pval_vec
+#' per_list_optimal<-rofanova(X_fdata,label_1,B = B,family="optimal",cores=cores)
 #' pvalue_optimal<-per_list_optimal$pval
 rofanova<-function(X,label_1,label_2=NULL,B=100,cores=1,family="bisquare",eff=0.95,mu0_g=NULL,scale=NULL,maxit = 50, tol = 1e-04){
 
-  if(length(dim(X_fdata$data))==2){
+  if(length(dim(X$data))==2){
   if(is.null(label_2)[1]){
     return(rofanova_oneway_perm(X,label_1,B=B,eff=eff,family=family,mu0_g=mu0_g,scale=scale,maxit = maxit, tol = tol,cores=cores))
   }
@@ -688,7 +781,7 @@ rofanova<-function(X,label_1,label_2=NULL,B=100,cores=1,family="bisquare",eff=0.
     return(rofanova_twoway_perm(X,label_1,label_2,B=B,eff=eff,family=family,mu0_g=mu0_g,scale=scale,maxit = maxit, tol = tol,cores=cores))
   }
   }
-  else if(length(dim(X_fdata$data))==3){
+  else if(length(dim(X$data))==3){
     if(is.null(label_2)[1]){
       return(rofanova_oneway_perm_sur(X,label_1,B=B,eff=eff,family=family,mu0_g=mu0_g,scale=scale,maxit = maxit, tol = tol,cores=cores))
     }
@@ -706,8 +799,8 @@ rofanova_oneway<-function(X,label,family="bisquare",eff = 0.95, maxit = 100, tol
   n=length(label)
   grid<-X$argvals
   if(is.null(scale))scale<-scale_res_oneway_pw(X,label,eff = eff,tol=tol, maxit = maxit,mu0_g=mu0_g )##median absolute value residual full model#146
-  global_mean<-FlocScaleM(X,psi = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale,mu0_g=mu0_g)$mu
-  group_mean<-lapply(1:k,function(ii)FlocScaleM(X[label==ii],psi=family,eff = eff, maxit = maxit, tol = tol,sig0_g = scale,mu0_g=mu0_g)$mu  )
+  global_mean<-FlocScaleM_mon(X,family = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale,mu0_g=mu0_g)$mu
+  group_mean<-lapply(1:k,function(ii)FlocScaleM_mon(X[label==ii],family=family,eff = eff, maxit = maxit, tol = tol,sig0_g = scale,mu0_g=mu0_g)$mu  )
 
   sum_1_i<-stdandar(X,global_mean,scale)
   norm_tot<-norm_fdata_c(sum_1_i)
@@ -733,7 +826,7 @@ rofanova_oneway<-function(X,label,family="bisquare",eff = 0.95, maxit = 100, tol
             scale_2=NULL,
             scale_re=NULL,
             X=X,
-            label_1=label_1,
+            label_1=label,
             label_2=NULL,
             family=family)
   return(out)
@@ -789,12 +882,12 @@ rofanova_twoway<-function(X,label_1,label_2=NULL,family="bisquare",eff = 0.95, m
     scale_1<-scale_res_oneway_pw(X,label_1,eff = eff,tol=tol, maxit = maxit,mu0_g=mu0_g  )
     scale_2<-scale_res_oneway_pw(X,label_2,eff = eff,tol=tol, maxit = maxit,mu0_g=mu0_g  )
     if(is.null(scale))scale<-scale_fun_pw(X,eff = eff,tol=tol, maxit = maxit,mu0_g=mu0_g)
-    global_mean<-FlocScaleM(X,psi = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale,mu0_g=mu0_g)$mu
-    group_mean_1<-lapply(1:k_1,function(ii)FlocScaleM(X[label_1==ii],psi = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale_1,mu0_g=mu0_g)$mu )
-    group_mean_2<-lapply(1:k_2,function(ii)FlocScaleM(X[label_2==ii],psi = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale_2,mu0_g=mu0_g)$mu  )
+    global_mean<-FlocScaleM_mon(X,family = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale,mu0_g=mu0_g)$mu
+    group_mean_1<-lapply(1:k_1,function(ii)FlocScaleM_mon(X[label_1==ii],family = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale_1,mu0_g=mu0_g)$mu )
+    group_mean_2<-lapply(1:k_2,function(ii)FlocScaleM_mon(X[label_2==ii],family = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale_2,mu0_g=mu0_g)$mu  )
     group_mean_ij<-list()
     for (ii in 1:k_1) {
-      group_mean_ij[[ii]]<-lapply(1:k_2,function(jj)FlocScaleM(X[label_1==ii&label_2==jj],psi = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale_res,mu0_g=mu0_g)$mu  )
+      group_mean_ij[[ii]]<-lapply(1:k_2,function(jj)FlocScaleM_mon(X[label_1==ii&label_2==jj],family = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale_res,mu0_g=mu0_g)$mu  )
     }
 
 
@@ -908,7 +1001,7 @@ rofanova_twoway_perm<-function(X,label_1,label_2=NULL,B=100,cores=1,eff=0.95,fam
     }
     else{
     if(.Platform$OS.type=="unix")
-      per_list<-parallel::mclapply(1:B,per_fun,mc.cores = detectCores())
+      per_list<-parallel::mclapply(1:B,per_fun,mc.cores = cores)
     else{
       cl <- parallel::makeCluster(cores)
       parallel::clusterExport(cl, c("n","X","label_1","label_2","eff","family","mu0_g","scale","maxit", "tol"),envir = environment())
@@ -943,8 +1036,8 @@ rofanova_oneway_sur<-function(X,label,family="bisquare",eff = 0.95, maxit = 100,
   n=length(label)
   grid<-X$argvals
   if(is.null(scale))scale<-scale_res_oneway_pw_sur(X,label,eff = eff,tol=tol, maxit = maxit,mu0_g=mu0_g )##median absolute value residual full model#146
-  global_mean<-FlocScaleM_sur(X,psi = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale,mu0_g=mu0_g)$mu
-  group_mean<-lapply(1:k,function(ii)FlocScaleM_sur(ex_fdata(X,label==ii),psi=family,eff = eff, maxit = maxit, tol = tol,sig0_g = scale,mu0_g=mu0_g)$mu  )
+  global_mean<-FlocScaleM_sur(X,family = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale,mu0_g=mu0_g)$mu
+  group_mean<-lapply(1:k,function(ii)FlocScaleM_sur(ex_fdata(X,label==ii),family=family,eff = eff, maxit = maxit, tol = tol,sig0_g = scale,mu0_g=mu0_g)$mu  )
 
   sum_1_i<-stdandar_sur(X,global_mean,scale)
   norm_tot<-norm_fdata_c_sur(sum_1_i)
@@ -971,7 +1064,7 @@ rofanova_oneway_sur<-function(X,label,family="bisquare",eff = 0.95, maxit = 100,
             scale_2=NULL,
             scale_re=NULL,
             X=X,
-            label_1=label_1,
+            label_1=label,
             label_2=NULL,
             family=family)
   return(out)
@@ -1028,7 +1121,7 @@ rofanova_twoway_perm_sur<-function(X,label_1,label_2=NA,B=100,cores=1,eff=0.95,f
   }
   else{
     if(.Platform$OS.type=="unix")
-      per_list<-parallel::mclapply(1:B,per_fun,mc.cores = detectCores())
+      per_list<-parallel::mclapply(1:B,per_fun,mc.cores = cores)
     else{
       cl <- parallel::makeCluster(cores)
       parallel::clusterExport(cl, c("n","X","label_1","label_2","eff","family","mu0_g","scale","maxit", "tol"),envir = environment())
@@ -1066,12 +1159,12 @@ rofanova_twoway_sur<-function(X,label_1,label_2=NA,family="bisquare",eff = 0.95,
     for (ii in 1:k_1) {
       scale_res_ij[[ii]]<-lapply(1:k_2,function(jj)scale_fun_pw_sur(ex_fdata(X,label_1==ii&label_2==jj), eff = eff, maxit = maxit, tol =tol)  )
     }
-    global_mean<-FlocScaleM_sur(X,psi = family, eff = eff, maxit = maxit, tol =tol,sig0_g=scale,mu0_g=mu0_g)$mu
-    group_mean_1<-lapply(1:k_1,function(ii)FlocScaleM_sur(ex_fdata(X,label_1==ii),psi = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale_1[[ii]],mu0_g=mu0_g )$mu )
-    group_mean_2<-lapply(1:k_2,function(ii)FlocScaleM_sur(ex_fdata(X,label_2==ii),psi = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale_2[[ii]],mu0_g=mu0_g )$mu  )
+    global_mean<-FlocScaleM_sur(X,family = family, eff = eff, maxit = maxit, tol =tol,sig0_g=scale,mu0_g=mu0_g)$mu
+    group_mean_1<-lapply(1:k_1,function(ii)FlocScaleM_sur(ex_fdata(X,label_1==ii),family = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale_1[[ii]],mu0_g=mu0_g )$mu )
+    group_mean_2<-lapply(1:k_2,function(ii)FlocScaleM_sur(ex_fdata(X,label_2==ii),family = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale_2[[ii]],mu0_g=mu0_g )$mu  )
     group_mean_ij<-list()
     for (ii in 1:k_1) {
-      group_mean_ij[[ii]]<-lapply(1:k_2,function(jj)FlocScaleM_sur(ex_fdata(X,label_1==ii&label_2==jj),psi = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale_res_ij[[ii]][[jj]],mu0_g=mu0_g )$mu  )
+      group_mean_ij[[ii]]<-lapply(1:k_2,function(jj)FlocScaleM_sur(ex_fdata(X,label_1==ii&label_2==jj),family = family, eff = eff, maxit = maxit, tol =tol,sig0_g = scale_res_ij[[ii]][[jj]],mu0_g=mu0_g )$mu  )
     }
 
 
@@ -1170,269 +1263,269 @@ rofanova_twoway_sur<-function(X,label_1,label_2=NA,family="bisquare",eff = 0.95,
 }
 
 
-# TWOWAY Fanova -----------------------------------------------------------
-fanova_twoway<-function(X,label_1,label_2){
-
-  n_ij=length(which(label_1==1&label_2==1))
-  k_1=length(unique(label_1))
-  k_2=length(unique(label_2))
-  n=length(label_1)
-
-  global_mean<-func.mean(X)
-  group_mean_1<-lapply(1:k_1,function(ii)func.mean(X[label_1==ii]))
-  group_mean_2<-lapply(1:k_2,function(ii)func.mean(X[label_2==ii]))
-  group_mean_ij<-list()
-  for (ii in 1:k_1) {
-    group_mean_ij[[ii]]<-lapply(1:k_2,function(jj)func.mean(X[label_1==ii&label_2==jj])  )
-  }
-
-
-  kkk=1
-  sum_full_list<-list()
-  for (ii in 1:k_1) {
-    for (jj in 1:k_2) {
-      sum_full_list[[kkk]]<-(X[label_1==ii&label_2==jj]-group_mean_ij[[ii]][[jj]])^2
-      kkk=kkk+1
-    }
-  }
-  sum_full_data<-Reduce("rbind",lapply(1:(k_1*k_2), function(ii)sum_full_list[[ii]]$data))
-  SSE<-sum_fdata(fdata(sum_full_data,argvals =grid ))
-  # Mod ---------------------------------------------------------------------
-
-
-  kkk=1
-  sum_full_list<-list()
-  for (ii in 1:k_1) {
-    for (jj in 1:k_2) {
-      sum_full_list[[kkk]]<-n_ij*(group_mean_ij[[ii]][[jj]]-global_mean)^2
-      kkk=kkk+1
-    }
-  }
-  sum_full_data<-Reduce("rbind",lapply(1:(k_1*k_2), function(ii)sum_full_list[[ii]]$data))
-  SSmod<-sum_fdata(fdata(sum_full_data,argvals =grid ))
-  T_numden_mod<-int.simpson(SSmod/((k_1-1)+(k_2-1)+(k_1-1)*(k_2-1)),method = "TRAPZ")/int.simpson(SSE/(k_1*k_2*(n_ij-1)),method = "TRAPZ")
-  T_full_mod<-int.simpson((SSmod/((k_1-1)+(k_2-1)+(k_1-1)*(k_2-1)))/(SSE/(k_1*k_2*(n_ij-1))),method = "TRAPZ")
-  T_mod<-c(numden=T_numden_mod,full=T_full_mod)
-
-  # Int ---------------------------------------------------------------------
-
-  kkk=1
-  sum_full_list<-list()
-  for (ii in 1:k_1) {
-    for (jj in 1:k_2) {
-      sum_full_list[[kkk]]<-n_ij*(group_mean_ij[[ii]][[jj]]-group_mean_1[[ii]]-group_mean_2[[jj]]+global_mean)^2
-      kkk=kkk+1
-    }
-  }
-  sum_full_data<-Reduce("rbind",lapply(1:(k_1*k_2), function(ii)sum_full_list[[ii]]$data))
-  SSint<-sum_fdata(fdata(sum_full_data,argvals =grid ))
-  T_numden_int<-int.simpson(SSint/((k_1-1)*(k_2-1)),method = "TRAPZ")/int.simpson(SSE/(k_1*k_2*(n_ij-1)),method = "TRAPZ")
-  T_full_int<-int.simpson((SSint/((k_1-1)*(k_2-1)))/(SSE/(k_1*k_2*(n_ij-1))),method = "TRAPZ")
-  T_int<-c(numden=T_numden_int,full=T_full_int)
-  # F1 ----------------------------------------------------------------------
-  kkk=1
-  sum_full_list<-list()
-  for (ii in 1:k_1) {
-    sum_full_list[[kkk]]<-n_ij*k_2*(group_mean_1[[ii]]-global_mean)^2
-    kkk=kkk+1
-
-  }
-  sum_full_data<-Reduce("rbind",lapply(1:(k_1), function(ii)sum_full_list[[ii]]$data))
-  SS1<-sum_fdata(fdata(sum_full_data,argvals =grid ))
-  T_numden_1<-int.simpson(SS1/((k_1-1)),method = "TRAPZ")/int.simpson(SSE/(k_1*k_2*(n_ij-1)),method = "TRAPZ")
-  T_full_1<-int.simpson((SS1/((k_1-1)))/(SSE/(k_1*k_2*(n_ij-1))),method = "TRAPZ")
-  T_1<-c(numden=T_numden_1,full=T_full_1)
-  # F2 ----------------------------------------------------------------------
-
-  kkk=1
-  sum_full_list<-list()
-  for (ii in 1:k_2) {
-    sum_full_list[[kkk]]<-n_ij*k_1*(group_mean_2[[ii]]-global_mean)^2
-    kkk=kkk+1
-
-  }
-  sum_full_data<-Reduce("rbind",lapply(1:(k_2), function(ii)sum_full_list[[ii]]$data))
-  SS2<-sum_fdata(fdata(sum_full_data,argvals =grid ))
-  T_numden_2<-int.simpson(SS2/((k_2-1)),method = "TRAPZ")/int.simpson(SSE/(k_1*k_2*(n_ij-1)),method = "TRAPZ")
-  T_full_2<-int.simpson((SS2/((k_2-1)))/(SSE/(k_1*k_2*(n_ij-1))),method = "TRAPZ")
-  T_2<-c(numden=T_numden_2,full=T_full_2)
-
-
-  Tr<-rbind(T_mod,T_int,T_1,T_2)
-  rownames(Tr)<-c("MOD","INT","F1","F2")
-  out<-list(Tr=Tr,
-            global_mean=global_mean,
-            group_mean_1=group_mean_1,
-            group_mean_2=group_mean_2,
-            group_mean_ij=group_mean_ij,
-            X_fdata=X,
-            label_1=label_1,
-            label_2=label_2)
-  return(out)
-}
-fanova_twoway_perm<-function(X,label_1,label_2,B=100,...){
-
-  n<-length(label_1)
-
-  Tr_obs<-fanova_twoway(X,label_1,label_2)$Tr
-  perm_mat<-t(sapply(1:B,function(ii)sample(1:n,replace = F)))
-  per_fun<-function(kkk){
-    perm_comb<-perm_mat[kkk,]
-    X_per<-X[perm_comb]
-    return(fanova_twoway(X_per,label_1,label_2)$Tr)
-  }
-  per_list<-mclapply(1:B,per_fun,mc.cores = detectCores())
-
-
-  pval_mat<-Tr_obs
-  Tr_perm<-list()
-  for (ii in 1:nrow(pval_mat)) {
-    Tr_perm[[ii]]<-list()
-    for (jj in 1:ncol(pval_mat)) {
-      Tr_perm[[ii]][[jj]]<-sapply(1:B,function(ll)per_list[[ll]][ii,jj])
-      pval_mat[ii,jj]<-sum(Tr_perm[[ii]][[jj]]>=Tr_obs[ii,jj])/B
-    }
-
-  }
-
-  out<-list(pval_mat=pval_mat,
-            Tr_obs=Tr_obs,
-            Tr_perm=Tr_perm)
-  return(out)
-
-}
-fanova_twoway_sur<-function(X,label_1,label_2){
-
-  n_ij=length(which(label_1==1&label_2==1))
-  k_1=length(unique(label_1))
-  k_2=length(unique(label_2))
-  n=length(label_1)
-  grid=X$argvals
-  global_mean<-func.mean_sur(X)
-  group_mean_1<-lapply(1:k_1,function(ii)func.mean_sur(ex_fdata(X,label_1==ii)))
-  group_mean_2<-lapply(1:k_2,function(ii)func.mean_sur(ex_fdata(X,label_2==ii)))
-  group_mean_ij<-list()
-  for (ii in 1:k_1) {
-    group_mean_ij[[ii]]<-lapply(1:k_2,function(jj)func.mean_sur(ex_fdata(X,label_1==ii&label_2==jj)))
-  }
-
-
-  kkk=1
-  sum_full_list<-list()
-  for (ii in 1:k_1) {
-    for (jj in 1:k_2) {
-      sum_full_list[[kkk]]<-center_sur(ex_fdata(X,label_1==ii&label_2==jj),group_mean_ij[[ii]][[jj]])^2
-      kkk=kkk+1
-    }
-  }
-  sum_full_data<-abind::abind(lapply(1:(k_1*k_2), function(ii)sum_full_list[[ii]]$data),along = 1)
-  SSE<-acc_fdata_sur(fdata(sum_full_data,argvals =grid ))
-
-  # Mod ---------------------------------------------------------------------
-
-
-  kkk=1
-  sum_full_list<-list()
-  for (ii in 1:k_1) {
-    for (jj in 1:k_2) {
-      sum_full_list[[kkk]]<-n_ij*diff_fdata_sur(group_mean_ij[[ii]][[jj]],global_mean)^2
-      kkk=kkk+1
-    }
-  }
-  sum_full_data<-abind::abind(lapply(1:(k_1*k_2), function(ii)sum_full_list[[ii]]$data),along = 1)
-  SSmod<-acc_fdata_sur(fdata(sum_full_data,argvals =grid ))
-  T_numden_mod<-int_sur(SSmod/((k_1-1)+(k_2-1)+(k_1-1)*(k_2-1)))/int_sur(SSE/(k_1*k_2*(n_ij-1)))
-  T_full_mod<-int_sur(frac_fdata_sur(SSmod/((k_1-1)+(k_2-1)+(k_1-1)*(k_2-1)),SSE/(k_1*k_2*(n_ij-1))))
-  T_mod<-c(numden=T_numden_mod,full=T_full_mod)
-
-  # Int ---------------------------------------------------------------------
-
-
-  kkk=1
-  sum_full_list<-list()
-  for (ii in 1:k_1) {
-    for (jj in 1:k_2) {
-      ele<-sum_fdata_sur(diff_fdata_sur(group_mean_ij[[ii]][[jj]],sum_fdata_sur(group_mean_1[[ii]],group_mean_2[[jj]])),global_mean)
-      sum_full_list[[kkk]]<-n_ij*(ele)^2
-      kkk=kkk+1
-    }
-  }
-  sum_full_data<-abind::abind(lapply(1:(k_1*k_2), function(ii)sum_full_list[[ii]]$data),along = 1)
-  SSint<-acc_fdata_sur(fdata(sum_full_data,argvals =grid ))
-  T_numden_int<-int_sur(SSint/((k_1-1)*(k_2-1)))/int_sur(SSE/(k_1*k_2*(n_ij-1)))
-  T_full_int<-int_sur(frac_fdata_sur(SSint/((k_1-1)*(k_2-1)),(SSE/(k_1*k_2*(n_ij-1)))))
-  T_int<-c(numden=T_numden_int,full=T_full_int)
-  # F1 ----------------------------------------------------------------------
-
-  kkk=1
-  sum_full_list<-list()
-  for (ii in 1:k_1) {
-    sum_full_list[[kkk]]<-n_ij*k_2*diff_fdata_sur(group_mean_1[[ii]],global_mean)^2
-    kkk=kkk+1
-
-  }
-  sum_full_data<-abind::abind(lapply(1:(k_1), function(ii)sum_full_list[[ii]]$data),along = 1)
-  SS1<-acc_fdata_sur(fdata(sum_full_data,argvals =grid ))
-  T_numden_1<-int_sur(SS1/((k_1-1)))/int_sur(SSE/(k_1*k_2*(n_ij-1)))
-  T_full_1<-int_sur(frac_fdata_sur(SS1/((k_1-1)),(SSE/(k_1*k_2*(n_ij-1)))))
-  T_1<-c(numden=T_numden_1,full=T_full_1)
-  # F2 ----------------------------------------------------------------------
-
-  kkk=1
-  sum_full_list<-list()
-  for (ii in 1:k_2) {
-    sum_full_list[[kkk]]<-n_ij*k_1*diff_fdata_sur(group_mean_2[[ii]],global_mean)^2
-    kkk=kkk+1
-
-  }
-  sum_full_data<-abind::abind(lapply(1:(k_2), function(ii)sum_full_list[[ii]]$data),along = 1)
-  SS2<-acc_fdata_sur(fdata(sum_full_data,argvals =grid ))
-  T_numden_2<-int_sur(SS2/((k_2-1)))/int_sur(SSE/(k_1*k_2*(n_ij-1)))
-  T_full_2<-int_sur(frac_fdata_sur(SS2/(k_2-1),(SSE/(k_1*k_2*(n_ij-1)))))
-  T_2<-c(numden=T_numden_2,full=T_full_2)
-
-
-  Tr<-rbind(T_mod,T_int,T_1,T_2)
-  rownames(Tr)<-c("MOD","INT","F1","F2")
-  out<-list(Tr=Tr,
-            global_mean=global_mean,
-            group_mean_1=group_mean_1,
-            group_mean_2=group_mean_2,
-            group_mean_ij=group_mean_ij,
-            SSE=SSE,
-            X_fdata=X,
-            label_1=label_1,
-            label_2=label_2)
-  return(out)
-}
-fanova_twoway_perm_sur<-function(X,label_1,label_2,B=100,...){
-
-  n<-length(label_1)
-
-  Tr_obs<-fanova_twoway_sur(X,label_1,label_2)$Tr
-  perm_mat<-t(sapply(1:B,function(ii)sample(1:n,replace = F)))
-  per_fun<-function(kkk){
-    perm_comb<-perm_mat[kkk,]
-    X_per<-ex_fdata(X,perm_comb)
-    return(fanova_twoway_sur(X_per,label_1,label_2)$Tr)
-  }
-  per_list<-mclapply(1:B,per_fun,mc.cores = detectCores())
-
-
-  pval_mat<-Tr_obs
-  Tr_perm<-list()
-  for (ii in 1:nrow(pval_mat)) {
-    Tr_perm[[ii]]<-list()
-    for (jj in 1:ncol(pval_mat)) {
-      Tr_perm[[ii]][[jj]]<-sapply(1:B,function(ll)per_list[[ll]][ii,jj])
-      pval_mat[ii,jj]<-sum(Tr_perm[[ii]][[jj]]>=Tr_obs[ii,jj])/B
-    }
-
-  }
-
-  out<-list(pval_mat=pval_mat,
-            Tr_obs=Tr_obs,
-            Tr_perm=Tr_perm)
-  return(out)
-
-}
+# # TWOWAY Fanova -----------------------------------------------------------
+# fanova_twoway<-function(X,label_1,label_2){
+#
+#   n_ij=length(which(label_1==1&label_2==1))
+#   k_1=length(unique(label_1))
+#   k_2=length(unique(label_2))
+#   n=length(label_1)
+#
+#   global_mean<-func.mean(X)
+#   group_mean_1<-lapply(1:k_1,function(ii)func.mean(X[label_1==ii]))
+#   group_mean_2<-lapply(1:k_2,function(ii)func.mean(X[label_2==ii]))
+#   group_mean_ij<-list()
+#   for (ii in 1:k_1) {
+#     group_mean_ij[[ii]]<-lapply(1:k_2,function(jj)func.mean(X[label_1==ii&label_2==jj])  )
+#   }
+#
+#
+#   kkk=1
+#   sum_full_list<-list()
+#   for (ii in 1:k_1) {
+#     for (jj in 1:k_2) {
+#       sum_full_list[[kkk]]<-(X[label_1==ii&label_2==jj]-group_mean_ij[[ii]][[jj]])^2
+#       kkk=kkk+1
+#     }
+#   }
+#   sum_full_data<-Reduce("rbind",lapply(1:(k_1*k_2), function(ii)sum_full_list[[ii]]$data))
+#   SSE<-sum_fdata(fdata(sum_full_data,argvals =grid ))
+#   # Mod ---------------------------------------------------------------------
+#
+#
+#   kkk=1
+#   sum_full_list<-list()
+#   for (ii in 1:k_1) {
+#     for (jj in 1:k_2) {
+#       sum_full_list[[kkk]]<-n_ij*(group_mean_ij[[ii]][[jj]]-global_mean)^2
+#       kkk=kkk+1
+#     }
+#   }
+#   sum_full_data<-Reduce("rbind",lapply(1:(k_1*k_2), function(ii)sum_full_list[[ii]]$data))
+#   SSmod<-sum_fdata(fdata(sum_full_data,argvals =grid ))
+#   T_numden_mod<-int.simpson(SSmod/((k_1-1)+(k_2-1)+(k_1-1)*(k_2-1)),method = "TRAPZ")/int.simpson(SSE/(k_1*k_2*(n_ij-1)),method = "TRAPZ")
+#   T_full_mod<-int.simpson((SSmod/((k_1-1)+(k_2-1)+(k_1-1)*(k_2-1)))/(SSE/(k_1*k_2*(n_ij-1))),method = "TRAPZ")
+#   T_mod<-c(numden=T_numden_mod,full=T_full_mod)
+#
+#   # Int ---------------------------------------------------------------------
+#
+#   kkk=1
+#   sum_full_list<-list()
+#   for (ii in 1:k_1) {
+#     for (jj in 1:k_2) {
+#       sum_full_list[[kkk]]<-n_ij*(group_mean_ij[[ii]][[jj]]-group_mean_1[[ii]]-group_mean_2[[jj]]+global_mean)^2
+#       kkk=kkk+1
+#     }
+#   }
+#   sum_full_data<-Reduce("rbind",lapply(1:(k_1*k_2), function(ii)sum_full_list[[ii]]$data))
+#   SSint<-sum_fdata(fdata(sum_full_data,argvals =grid ))
+#   T_numden_int<-int.simpson(SSint/((k_1-1)*(k_2-1)),method = "TRAPZ")/int.simpson(SSE/(k_1*k_2*(n_ij-1)),method = "TRAPZ")
+#   T_full_int<-int.simpson((SSint/((k_1-1)*(k_2-1)))/(SSE/(k_1*k_2*(n_ij-1))),method = "TRAPZ")
+#   T_int<-c(numden=T_numden_int,full=T_full_int)
+#   # F1 ----------------------------------------------------------------------
+#   kkk=1
+#   sum_full_list<-list()
+#   for (ii in 1:k_1) {
+#     sum_full_list[[kkk]]<-n_ij*k_2*(group_mean_1[[ii]]-global_mean)^2
+#     kkk=kkk+1
+#
+#   }
+#   sum_full_data<-Reduce("rbind",lapply(1:(k_1), function(ii)sum_full_list[[ii]]$data))
+#   SS1<-sum_fdata(fdata(sum_full_data,argvals =grid ))
+#   T_numden_1<-int.simpson(SS1/((k_1-1)),method = "TRAPZ")/int.simpson(SSE/(k_1*k_2*(n_ij-1)),method = "TRAPZ")
+#   T_full_1<-int.simpson((SS1/((k_1-1)))/(SSE/(k_1*k_2*(n_ij-1))),method = "TRAPZ")
+#   T_1<-c(numden=T_numden_1,full=T_full_1)
+#   # F2 ----------------------------------------------------------------------
+#
+#   kkk=1
+#   sum_full_list<-list()
+#   for (ii in 1:k_2) {
+#     sum_full_list[[kkk]]<-n_ij*k_1*(group_mean_2[[ii]]-global_mean)^2
+#     kkk=kkk+1
+#
+#   }
+#   sum_full_data<-Reduce("rbind",lapply(1:(k_2), function(ii)sum_full_list[[ii]]$data))
+#   SS2<-sum_fdata(fdata(sum_full_data,argvals =grid ))
+#   T_numden_2<-int.simpson(SS2/((k_2-1)),method = "TRAPZ")/int.simpson(SSE/(k_1*k_2*(n_ij-1)),method = "TRAPZ")
+#   T_full_2<-int.simpson((SS2/((k_2-1)))/(SSE/(k_1*k_2*(n_ij-1))),method = "TRAPZ")
+#   T_2<-c(numden=T_numden_2,full=T_full_2)
+#
+#
+#   Tr<-rbind(T_mod,T_int,T_1,T_2)
+#   rownames(Tr)<-c("MOD","INT","F1","F2")
+#   out<-list(Tr=Tr,
+#             global_mean=global_mean,
+#             group_mean_1=group_mean_1,
+#             group_mean_2=group_mean_2,
+#             group_mean_ij=group_mean_ij,
+#             X_fdata=X,
+#             label_1=label_1,
+#             label_2=label_2)
+#   return(out)
+# }
+# fanova_twoway_perm<-function(X,label_1,label_2,B=100,...){
+#
+#   n<-length(label_1)
+#
+#   Tr_obs<-fanova_twoway(X,label_1,label_2)$Tr
+#   perm_mat<-t(sapply(1:B,function(ii)sample(1:n,replace = F)))
+#   per_fun<-function(kkk){
+#     perm_comb<-perm_mat[kkk,]
+#     X_per<-X[perm_comb]
+#     return(fanova_twoway(X_per,label_1,label_2)$Tr)
+#   }
+#   per_list<-parallel::mclapply(1:B,per_fun,mc.cores = detectCores())
+#
+#
+#   pval_mat<-Tr_obs
+#   Tr_perm<-list()
+#   for (ii in 1:nrow(pval_mat)) {
+#     Tr_perm[[ii]]<-list()
+#     for (jj in 1:ncol(pval_mat)) {
+#       Tr_perm[[ii]][[jj]]<-sapply(1:B,function(ll)per_list[[ll]][ii,jj])
+#       pval_mat[ii,jj]<-sum(Tr_perm[[ii]][[jj]]>=Tr_obs[ii,jj])/B
+#     }
+#
+#   }
+#
+#   out<-list(pval_mat=pval_mat,
+#             Tr_obs=Tr_obs,
+#             Tr_perm=Tr_perm)
+#   return(out)
+#
+# }
+# fanova_twoway_sur<-function(X,label_1,label_2){
+#
+#   n_ij=length(which(label_1==1&label_2==1))
+#   k_1=length(unique(label_1))
+#   k_2=length(unique(label_2))
+#   n=length(label_1)
+#   grid=X$argvals
+#   global_mean<-func.mean_sur(X)
+#   group_mean_1<-lapply(1:k_1,function(ii)func.mean_sur(ex_fdata(X,label_1==ii)))
+#   group_mean_2<-lapply(1:k_2,function(ii)func.mean_sur(ex_fdata(X,label_2==ii)))
+#   group_mean_ij<-list()
+#   for (ii in 1:k_1) {
+#     group_mean_ij[[ii]]<-lapply(1:k_2,function(jj)func.mean_sur(ex_fdata(X,label_1==ii&label_2==jj)))
+#   }
+#
+#
+#   kkk=1
+#   sum_full_list<-list()
+#   for (ii in 1:k_1) {
+#     for (jj in 1:k_2) {
+#       sum_full_list[[kkk]]<-center_sur(ex_fdata(X,label_1==ii&label_2==jj),group_mean_ij[[ii]][[jj]])^2
+#       kkk=kkk+1
+#     }
+#   }
+#   sum_full_data<-abind::abind(lapply(1:(k_1*k_2), function(ii)sum_full_list[[ii]]$data),along = 1)
+#   SSE<-acc_fdata_sur(fdata(sum_full_data,argvals =grid ))
+#
+#   # Mod ---------------------------------------------------------------------
+#
+#
+#   kkk=1
+#   sum_full_list<-list()
+#   for (ii in 1:k_1) {
+#     for (jj in 1:k_2) {
+#       sum_full_list[[kkk]]<-n_ij*diff_fdata_sur(group_mean_ij[[ii]][[jj]],global_mean)^2
+#       kkk=kkk+1
+#     }
+#   }
+#   sum_full_data<-abind::abind(lapply(1:(k_1*k_2), function(ii)sum_full_list[[ii]]$data),along = 1)
+#   SSmod<-acc_fdata_sur(fdata(sum_full_data,argvals =grid ))
+#   T_numden_mod<-int_sur(SSmod/((k_1-1)+(k_2-1)+(k_1-1)*(k_2-1)))/int_sur(SSE/(k_1*k_2*(n_ij-1)))
+#   T_full_mod<-int_sur(frac_fdata_sur(SSmod/((k_1-1)+(k_2-1)+(k_1-1)*(k_2-1)),SSE/(k_1*k_2*(n_ij-1))))
+#   T_mod<-c(numden=T_numden_mod,full=T_full_mod)
+#
+#   # Int ---------------------------------------------------------------------
+#
+#
+#   kkk=1
+#   sum_full_list<-list()
+#   for (ii in 1:k_1) {
+#     for (jj in 1:k_2) {
+#       ele<-sum_fdata_sur(diff_fdata_sur(group_mean_ij[[ii]][[jj]],sum_fdata_sur(group_mean_1[[ii]],group_mean_2[[jj]])),global_mean)
+#       sum_full_list[[kkk]]<-n_ij*(ele)^2
+#       kkk=kkk+1
+#     }
+#   }
+#   sum_full_data<-abind::abind(lapply(1:(k_1*k_2), function(ii)sum_full_list[[ii]]$data),along = 1)
+#   SSint<-acc_fdata_sur(fdata(sum_full_data,argvals =grid ))
+#   T_numden_int<-int_sur(SSint/((k_1-1)*(k_2-1)))/int_sur(SSE/(k_1*k_2*(n_ij-1)))
+#   T_full_int<-int_sur(frac_fdata_sur(SSint/((k_1-1)*(k_2-1)),(SSE/(k_1*k_2*(n_ij-1)))))
+#   T_int<-c(numden=T_numden_int,full=T_full_int)
+#   # F1 ----------------------------------------------------------------------
+#
+#   kkk=1
+#   sum_full_list<-list()
+#   for (ii in 1:k_1) {
+#     sum_full_list[[kkk]]<-n_ij*k_2*diff_fdata_sur(group_mean_1[[ii]],global_mean)^2
+#     kkk=kkk+1
+#
+#   }
+#   sum_full_data<-abind::abind(lapply(1:(k_1), function(ii)sum_full_list[[ii]]$data),along = 1)
+#   SS1<-acc_fdata_sur(fdata(sum_full_data,argvals =grid ))
+#   T_numden_1<-int_sur(SS1/((k_1-1)))/int_sur(SSE/(k_1*k_2*(n_ij-1)))
+#   T_full_1<-int_sur(frac_fdata_sur(SS1/((k_1-1)),(SSE/(k_1*k_2*(n_ij-1)))))
+#   T_1<-c(numden=T_numden_1,full=T_full_1)
+#   # F2 ----------------------------------------------------------------------
+#
+#   kkk=1
+#   sum_full_list<-list()
+#   for (ii in 1:k_2) {
+#     sum_full_list[[kkk]]<-n_ij*k_1*diff_fdata_sur(group_mean_2[[ii]],global_mean)^2
+#     kkk=kkk+1
+#
+#   }
+#   sum_full_data<-abind::abind(lapply(1:(k_2), function(ii)sum_full_list[[ii]]$data),along = 1)
+#   SS2<-acc_fdata_sur(fdata(sum_full_data,argvals =grid ))
+#   T_numden_2<-int_sur(SS2/((k_2-1)))/int_sur(SSE/(k_1*k_2*(n_ij-1)))
+#   T_full_2<-int_sur(frac_fdata_sur(SS2/(k_2-1),(SSE/(k_1*k_2*(n_ij-1)))))
+#   T_2<-c(numden=T_numden_2,full=T_full_2)
+#
+#
+#   Tr<-rbind(T_mod,T_int,T_1,T_2)
+#   rownames(Tr)<-c("MOD","INT","F1","F2")
+#   out<-list(Tr=Tr,
+#             global_mean=global_mean,
+#             group_mean_1=group_mean_1,
+#             group_mean_2=group_mean_2,
+#             group_mean_ij=group_mean_ij,
+#             SSE=SSE,
+#             X_fdata=X,
+#             label_1=label_1,
+#             label_2=label_2)
+#   return(out)
+# }
+# fanova_twoway_perm_sur<-function(X,label_1,label_2,B=100,...){
+#
+#   n<-length(label_1)
+#
+#   Tr_obs<-fanova_twoway_sur(X,label_1,label_2)$Tr
+#   perm_mat<-t(sapply(1:B,function(ii)sample(1:n,replace = F)))
+#   per_fun<-function(kkk){
+#     perm_comb<-perm_mat[kkk,]
+#     X_per<-ex_fdata(X,perm_comb)
+#     return(fanova_twoway_sur(X_per,label_1,label_2)$Tr)
+#   }
+#   per_list<-parallel::mclapply(1:B,per_fun,mc.cores = detectCores())
+#
+#
+#   pval_mat<-Tr_obs
+#   Tr_perm<-list()
+#   for (ii in 1:nrow(pval_mat)) {
+#     Tr_perm[[ii]]<-list()
+#     for (jj in 1:ncol(pval_mat)) {
+#       Tr_perm[[ii]][[jj]]<-sapply(1:B,function(ll)per_list[[ll]][ii,jj])
+#       pval_mat[ii,jj]<-sum(Tr_perm[[ii]][[jj]]>=Tr_obs[ii,jj])/B
+#     }
+#
+#   }
+#
+#   out<-list(pval_mat=pval_mat,
+#             Tr_obs=Tr_obs,
+#             Tr_perm=Tr_perm)
+#   return(out)
+#
+# }

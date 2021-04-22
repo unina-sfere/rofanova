@@ -20,7 +20,9 @@ LinkingTo:
 Imports: 
     Rcpp,
     RcppArmadillo,
-    abind
+    abind,
+    parallel,
+    stats
 Depends:
     fda.usc,
     robustbase
