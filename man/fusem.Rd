@@ -56,8 +56,6 @@ per_list_median<-fusem(X_fdata)
 }
 \references{
 Centofanti, F., Lepore, A., & Palumbo, B. (2021).
-Sparse and Smooth Functional Data Clustering.
-\emph{arXiv preprint arXiv:2103.15224}.
 }
 \seealso{
 \code{\link{rofanova}} \code{\link{funmad}}

@@ -48,7 +48,7 @@ If NULL the standard non-robust functional mean is used. Default is NULL.}
 The algorithm stops when the relative variation of the weighted norm sum between two consecutive iterations is less than \code{tol}.}
 }
 \value{
-\code{pval_vec} Vector of p-value of corresponding to the test of the main effects and the interaction.  For one-way RoFANOVA, it is the p-value corresponding to the test of the main effect.
+\code{pval_vec} Vector of p-value of corresponding to the test of significance of the whole model, the main effects and the interaction.  For one-way RoFANOVA, it is the p-value corresponding to the test of the main effect.
 
  \code{Tr_obs} The observed value of the test statistic.
 
@@ -107,8 +107,6 @@ pvalue_optimal<-per_list_optimal$pval
 }
 \references{
 Centofanti, F., Lepore, A., & Palumbo, B. (2021).
-Sparse and Smooth Functional Data Clustering.
-\emph{arXiv preprint arXiv:2103.15224}.
 }
 \seealso{
 \code{\link{fusem}} \code{\link{funmad}}

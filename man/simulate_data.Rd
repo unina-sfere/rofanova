@@ -7,14 +7,14 @@
 simulate_data(
   scenario = "one-way",
   mean = "M1",
-  con = "C1",
+  con = "C0",
   p = 0.1,
   M = 1,
   n_i = 10,
   k_1 = 3,
   k_2 = 3,
-  alpha = 0.05,
-  beta = 0.05,
+  alpha = 0,
+  beta = 0,
   sd = 0.01,
   grid = seq(0, 1, length.out = 30),
   err = "s"
@@ -80,8 +80,6 @@ pvalue_optimal<-per_list_optimal$pval
 }
 \references{
 Centofanti, F., Lepore, A., & Palumbo, B. (2021).
-Sparse and Smooth Functional Data Clustering.
-\emph{arXiv preprint arXiv:2103.15224}.
 }
 \seealso{
 \code{\link{rofanova}} \code{\link{fusem}} \code{\link{funmad}}

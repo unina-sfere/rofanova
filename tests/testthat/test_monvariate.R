@@ -24,7 +24,7 @@ pvalue_optimal_vec<-per_list_optimal$pval_vec
 
 # Test two-way monovariate  ----------------------------------------------------
 
-data_out<-simulate_data(scenario="two-way")
+data_out<-simulate_data(scenario="two-way",alpha = 0,beta = 0)
 label_1=data_out$label_1
 label_2=data_out$label_2
 X_fdata<-data_out$X_fdata

@@ -24,8 +24,6 @@ NULL
 #' @author Fabio Centofanti, Antonio Lepore, Biagio Palumbo
 #' @references
 #' Centofanti, F., Lepore, A., & Palumbo, B. (2021).
-#' Sparse and Smooth Functional Data Clustering.
-#' \emph{arXiv preprint arXiv:2103.15224}.
 #'
 #' @seealso \code{\link{fusem}} \code{\link{funmad}}
 #' @examples

@@ -30,8 +30,6 @@
 #' @export
 #' @references
 #' Centofanti, F., Lepore, A., & Palumbo, B. (2021).
-#' Sparse and Smooth Functional Data Clustering.
-#' \emph{arXiv preprint arXiv:2103.15224}.
 #'
 #' @examples
 #' library(rofanova)
@@ -50,7 +48,7 @@
 #' pvalue_hampel_vec<-per_list_hampel$pval_vec
 #' per_list_optimal<-rofanova(X_fdata,label_1,B = B,family="optimal",cores=cores)
 #' pvalue_optimal<-per_list_optimal$pval
-simulate_data<-function(scenario="one-way",mean="M1",con="C1",p=0.1,M=1,n_i=10,k_1=3,k_2=3,alpha=0.05,beta=0.05,sd=0.01,grid=seq(0,1,length.out = 30),err="s"){
+simulate_data<-function(scenario="one-way",mean="M1",con="C0",p=0.1,M=1,n_i=10,k_1=3,k_2=3,alpha=0,beta=0,sd=0.01,grid=seq(0,1,length.out = 30),err="s"){
 
   if(scenario=="one-way")
     return(simulate_data_oneway(mean=mean,con=con,p=p,M=M,n_i=n_i,k=k_1,sd=sd,grid=grid))
@@ -353,8 +351,6 @@ simulate_data_twoway_sur<-function(con="C1",n_i=10,k_1=3,k_2=3,p=0.1,M=1,alpha=0
 #' @export
 #' @references
 #' Centofanti, F., Lepore, A., & Palumbo, B. (2021).
-#' Sparse and Smooth Functional Data Clustering.
-#' \emph{arXiv preprint arXiv:2103.15224}.
 #' @inheritParams rofanova
 #' @examples
 #'
@@ -569,8 +565,6 @@ rfun<-function (x,rho="bisquare",eff=0.95){
 #' @export
 #' @references
 #' Centofanti, F., Lepore, A., & Palumbo, B. (2021).
-#' Sparse and Smooth Functional Data Clustering.
-#' \emph{arXiv preprint arXiv:2103.15224}.
 #' @inheritParams rofanova
 #' @examples
 #'
@@ -712,7 +706,7 @@ scale_res_twoway_pw_sur<-function(x,label_1,label_2,...){
 #' The algorithm stops when the relative variation of the weighted norm sum between two consecutive iterations is less than \code{tol}.
 #' @param cores If \code{cores}>1, then parallel computing is used, with \code{cores} cores. Default is 1.
 #' @return
-#'  \code{pval_vec} Vector of p-value of corresponding to the test of the main effects and the interaction.  For one-way RoFANOVA, it is the p-value corresponding to the test of the main effect.
+#'  \code{pval_vec} Vector of p-value of corresponding to the test of significance of the whole model, the main effects and the interaction.  For one-way RoFANOVA, it is the p-value corresponding to the test of the main effect.
 #'
 #'  \code{Tr_obs} The observed value of the test statistic.
 #'
@@ -751,8 +745,6 @@ scale_res_twoway_pw_sur<-function(x,label_1,label_2,...){
 #' @export
 #' @references
 #' Centofanti, F., Lepore, A., & Palumbo, B. (2021).
-#' Sparse and Smooth Functional Data Clustering.
-#' \emph{arXiv preprint arXiv:2103.15224}.
 #'
 #' @examples
 #' library(rofanova)
@@ -964,8 +956,8 @@ rofanova_twoway<-function(X,label_1,label_2=NULL,family="bisquare",eff = 0.95, m
     Tr_f2<-(1/((k_2-1)))*(sum_red-sum_full)
 
 
-    Tr<-rbind(Tr_full,Tr_int,Tr_f1,Tr_f2)
-    rownames(Tr)<-c("MOD","INT","F1","F2")
+    Tr<-rbind(Tr_full,Tr_f1,Tr_f2,Tr_int)
+    rownames(Tr)<-c("MOD","F1","F2","INT")
     out<-list(Tr=Tr,
               global_mean=global_mean,
               group_mean_1=group_mean_1,
@@ -1243,9 +1235,8 @@ rofanova_twoway_sur<-function(X,label_1,label_2=NA,family="bisquare",eff = 0.95,
     sum_red<-sum(sapply(1:n, function(ii)rfun(norm_red[ii],rho = family,eff = eff)))
     Tr_f2<-(1/((k_2-1)))*(sum_red-sum_full)
 
-
-    Tr<-rbind(Tr_full,Tr_int,Tr_f1,Tr_f2)
-    rownames(Tr)<-c("MOD","INT","F1","F2")
+    Tr<-rbind(Tr_full,Tr_f1,Tr_f2,Tr_int)
+    rownames(Tr)<-c("MOD","F1","F2","INT")
     out<-list(Tr=Tr,
               global_mean=global_mean,
               group_mean_1=group_mean_1,

@@ -39,8 +39,6 @@ pvalue_optimal<-per_list_optimal$pval
 }
 \references{
 Centofanti, F., Lepore, A., & Palumbo, B. (2021).
-Sparse and Smooth Functional Data Clustering.
-\emph{arXiv preprint arXiv:2103.15224}.
 }
 \seealso{
 \code{\link{fusem}} \code{\link{funmad}}
