@@ -101,7 +101,7 @@ pvalue_hampel<-per_list_hampel$pval_vec
 per_list_optimal<-rofanova(X_fdata,label_1,label_2,B = B,family="optimal")
 pvalue_optimal<-per_list_optimal$pval
 pvalues<-cbind(pvalue_median,pvalue_huber,pvalue_bisquare,pvalue_hampel,pvalue_optimal)
-colnames(pvalues)=c("median", "Huber", "bisquare", "Hampel", "optimal")
+colnames(pvalues)=c("median", "Huber", "bisquare", "Hampel", "optimal") 
 ```
 The p-values for the siginificance of the whole model, the two main factors and the interaction are
 ```{r} 

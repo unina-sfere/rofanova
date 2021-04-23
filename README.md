@@ -90,7 +90,7 @@ The p-values for the siginificance of the main factor are
 ``` r
 print(pvalues)
 #>   median    Huber bisquare   Hampel  optimal 
-#>     0.20     0.00     0.05     0.00     0.10
+#>     0.80     0.85     1.00     0.80     0.95
 ```
 
 Similarly, two-way FANOVA can be performed as follows.
@@ -112,7 +112,7 @@ pvalue_hampel<-per_list_hampel$pval_vec
 per_list_optimal<-rofanova(X_fdata,label_1,label_2,B = B,family="optimal")
 pvalue_optimal<-per_list_optimal$pval
 pvalues<-cbind(pvalue_median,pvalue_huber,pvalue_bisquare,pvalue_hampel,pvalue_optimal)
-colnames(pvalues)=c("median", "Huber", "bisquare", "Hampel", "optimal")
+colnames(pvalues)=c("median", "Huber", "bisquare", "Hampel", "optimal") 
 ```
 
 The p-values for the siginificance of the whole model, the two main
@@ -121,10 +121,10 @@ factors and the interaction are
 ``` r
 print(pvalues)
 #>     median Huber bisquare Hampel optimal
-#> MOD   0.65  0.45     0.55   0.30    0.55
-#> F1    0.85  0.65     0.70   0.60    0.75
-#> F2    0.40  0.40     0.90   0.55    0.60
-#> INT   0.35  0.35     0.35   0.25    0.25
+#> MOD   0.65  0.65     0.60   0.60    0.75
+#> F1    0.75  0.80     0.75   0.50    0.50
+#> F2    0.30  0.40     0.45   0.35    0.30
+#> INT   0.85  0.65     0.70   0.70    0.75
 ```
 
 # References
