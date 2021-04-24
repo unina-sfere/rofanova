@@ -7,24 +7,17 @@ using namespace Rcpp;
 
 // [[Rcpp::export]]
 arma::mat norm_fdata_c(List v){
-
-
   arma::mat data = v[0];
   arma::vec grid=v[1];
   arma::mat data_2=data%data;
   arma::mat integrale=trapz(grid,trans(data_2));
   arma::mat norm =sqrt(integrale);
   return(norm);
-
-
 }
 // [[Rcpp::export]]
 arma::mat norm_fdata_c_sur(List v){
-
-
   arma::cube data = v[0];
   int n=data.n_rows;
-  // Rcout<<n<<"\n";
   List grid=v[1];
   arma::vec grid_s=grid[0];
   arma::vec grid_t=grid[1];
@@ -32,23 +25,12 @@ arma::mat norm_fdata_c_sur(List v){
   double delta_t=1/(n_points_t-1);
   double n_points_s=(grid_s.n_rows);
   double delta_s=1/(n_points_s-1);
-  // Rcout<<delta_t<<"\n";
-  // Rcout<<delta_s<<"\n";
   arma::mat integrale(n,1);
-  // Rcout<<integrale<<"\n";
   for (int i = 0; i < n; i++) {
-    // Rcout<<i<<"\n";
     arma::mat A=data.row(i);
-    // Rcout<<accu(A%A)<<"\n";
     integrale(i,0)=sqrt(delta_t*delta_s*accu(A%A));
-
   }
-  // Rcout<<integrale<<"\n";
-  //
-  // arma::mat norm =integrale;
   return(integrale);
-
-
 }
 // [[Rcpp::export]]
 arma::mat wfun_c(arma::mat x,int k,double ktun){
@@ -117,7 +99,6 @@ List stdandar(List x,List mu,List sig){
   arma::mat sum=(tmp1-tmp2)/tmp3;
   out[0] = sum;
   return out;
-
 }
 // [[Rcpp::export]]
 List stdandar_sur(List x,List mu,List sig){
@@ -133,20 +114,12 @@ List stdandar_sur(List x,List mu,List sig){
   arma::mat mu_mat = data_mu.row(0);
   arma::mat sig_mat = data_sig.row(0);
   sig_mat.replace(0, pow(10,-20));
-  // Rcout<<sig_mat(0,0)<<"\n";
   for (int i = 0; i < n; i++) {
-    // Rcout<<mu_mat<<"\n";
     A=data.row(i);
     tmp1.row(i)= (A-mu_mat)/sig_mat;
   }
-
-  // for (int i = 0; i < n; i++) {
-  //   tmp3.row(i)= sig_mat;
-  // }
-  // arma::cube sum=(data-tmp2)/tmp3;
   out[0] = tmp1;
   return out;
-
 }
 // [[Rcpp::export]]
 List center_sur(List x,List mu){
@@ -160,19 +133,16 @@ List center_sur(List x,List mu){
   arma::mat mu_mat = data_mu.row(0);
   arma::mat A;
   for (int i = 0; i < n; i++) {
-    // Rcout<<mu_mat<<"\n";
     A=data.row(i);
     tmp1.row(i)= (A-mu_mat);
   }
   out[0] = tmp1;
   return out;
-
 }
 // [[Rcpp::export]]
 arma::mat dife( arma::mat resi_new, arma::mat resi){
   arma::mat out=abs(mean(resi_new,0) -mean(resi,0))/mean(resi,0);
   return out;
-
 }
 // [[Rcpp::export]]
 List iteration(List x,List mu0,List sig0,double kpsi,double ktun,double tol, int maxit){
@@ -184,13 +154,10 @@ List iteration(List x,List mu0,List sig0,double kpsi,double ktun,double tol, int
   arma::mat ww;
   arma::mat data=x[0];
   List data_std;
-
   List mu_it;
   List somma_fdata;
-
   double sum_ww;
   while ((dife(0) > tol_mat(0)) & (iter < maxit)) {
-    // Rcout<<iter<<"\n";
     ++iter;
     data_std=stdandar(x,mu0,sig0);
     resi= norm_fdata_c(data_std);
@@ -225,15 +192,12 @@ List iteration_sur(List x,List mu0,List sig0,int kpsi,double ktun,double tol, in
   arma::cube data_prodotto(n,n_row,n_col);
   List mu_it;
   List somma_fdata;
-
   double sum_ww;
   while ((dife(0) > tol_mat(0)) & (iter < maxit)) {
-    // Rcout<<iter<<"\n";
     ++iter;
     data_std=stdandar_sur(x,mu0,sig0);
     resi= norm_fdata_c_sur(data_std);
     ww = wfun_c(resi, kpsi,ktun);
-    // Rcout<<ww(10,0)<<"\n";
     for (int i = 0; i < n; i++) {
       data_prodotto.row(i)= ww(i,0)*data.row(i);
     }
@@ -246,20 +210,15 @@ List iteration_sur(List x,List mu0,List sig0,int kpsi,double ktun,double tol, in
     dife = abs(mean(resi_new,1) -mean(resi,1))/mean(resi,1);
     mu0=mu_it;
   }
-  // Rcout<<ww<<"\n";
   List out(clone(mu_it));
   return out;
 }
 // [[Rcpp::export]]
 arma::mat Mwgt_r(arma::mat x,arma::mat cc, Rcpp::StringVector  family){
-  // Obtain environment containing function
   Rcpp::Environment base("package:robustbase");
-  // Rcpp::Function Mwgt_ri("Mwgt", Environment::namespace_env("robustbase"));
-  // Rcout<<family<<"\n";
-  // Make function callable from C++
   Rcpp::Function Mwgt_ri = base["Mwgt"];
   arma::mat out=Rcpp :: as < arma :: mat >(Mwgt_ri(x,cc,family));
-  return out; // uses Rcpp sugar
+  return out;
 }
 // [[Rcpp::export]]
 List iteration_ho(List x,List mu0,List sig0,arma::mat cc,Rcpp::StringVector family,double tol, int maxit){
@@ -271,10 +230,8 @@ List iteration_ho(List x,List mu0,List sig0,arma::mat cc,Rcpp::StringVector fami
   arma::mat ww;
   arma::mat data=x[0];
   List data_std;
-
   List mu_it;
   List somma_fdata;
-
   double sum_ww;
   while ((dife(0) > tol_mat(0)) & (iter < maxit)) {
     ++iter;
@@ -291,7 +248,6 @@ List iteration_ho(List x,List mu0,List sig0,arma::mat cc,Rcpp::StringVector fami
     dife = abs(mean(resi_new,1) -mean(resi,1))/mean(resi,1);
     mu0=mu_it;
   }
-
   List out(clone(mu_it));
   return out;
 }
@@ -312,16 +268,12 @@ List iteration_ho_sur(List x,List mu0,List sig0,arma::mat cc,Rcpp::StringVector 
   arma::cube data_prodotto(n,n_row,n_col);
   List mu_it;
   List somma_fdata;
-
   double sum_ww;
   while ((dife(0) > tol_mat(0)) & (iter < maxit)) {
-    // Rcout<<iter<<"\n";
     ++iter;
     data_std=stdandar_sur(x,mu0,sig0);
     resi= norm_fdata_c_sur(data_std);
-    // Rcout<<resi<<"\n";
     ww = Mwgt_r(resi, cc,family);
-
     for (int i = 0; i < n; i++) {
       data_prodotto.row(i)= ww(i,0)*data.row(i);
     }
@@ -334,7 +286,6 @@ List iteration_ho_sur(List x,List mu0,List sig0,arma::mat cc,Rcpp::StringVector 
     dife = abs(mean(resi_new,1) -mean(resi,1))/mean(resi,1);
     mu0=mu_it;
   }
-  // Rcout<<ww<<"\n";
   List out(clone(mu_it));
   return out;
 }
