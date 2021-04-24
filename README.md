@@ -7,6 +7,8 @@
 
 [![Travis build
 status](https://travis-ci.com/unina-sfere/rofanova.svg?branch=master)](https://travis-ci.com/unina-sfere/rofanova)
+[![R build
+status](https://github.com/unina-sfere/rofanova/workflows/R-CMD-check/badge.svg)](https://github.com/unina-sfere/rofanova/actions)
 <!-- badges: end -->
 
 The package **rofanova** implements the robust nonparametric functional
@@ -60,13 +62,13 @@ library(rofanova)
 ```
 
 Then, we generate the data and, just as an example, we fix the number of
-permutations *B* to 50.
+permutations *B* to 20.
 
 ``` r
 data_out<-simulate_data(scenario="one-way")
 label_1=data_out$label_1
 X_fdata<-data_out$X_fdata
-B=50
+B=20
 ```
 
 We compute the p-values corresponding to the RoFANOVA test with the
@@ -93,7 +95,7 @@ The p-values for the siginificance of the main factor are
 ``` r
 print(pvalues)
 #>   median    Huber bisquare   Hampel  optimal 
-#>     0.92     0.90     0.94     0.94     0.92
+#>     0.55     0.65     0.40     0.55     0.55
 ```
 
 Similarly, two-way FANOVA can be performed as follows.
@@ -103,7 +105,7 @@ data_out<-simulate_data(scenario="two-way")
 label_1=data_out$label_1
 label_2=data_out$label_2
 X_fdata<-data_out$X_fdata
-B=50
+B=20
 per_list_median<-rofanova(X_fdata,label_1,label_2,B = B,family="median")
 pvalue_median<-per_list_median$pval_vec
 per_list_huber<-rofanova(X_fdata,label_1,label_2,B = B,family="huber")
@@ -124,10 +126,10 @@ factors and the interaction are
 ``` r
 print(pvalues)
 #>     median Huber bisquare Hampel optimal
-#> MOD   0.96  0.94     0.92   1.00    0.92
-#> F1    0.72  0.72     0.64   0.64    0.64
-#> F2    0.64  0.72     0.78   0.86    0.72
-#> INT   0.92  0.98     0.88   0.94    0.88
+#> MOD   0.75   0.7     0.55   0.55    0.75
+#> F1    0.95   0.8     0.90   0.95    0.90
+#> F2    0.35   0.3     0.30   0.35    0.20
+#> INT   0.70   0.6     0.30   0.65    0.60
 ```
 
 # References

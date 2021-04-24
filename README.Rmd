@@ -17,6 +17,7 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 [![Travis build status](https://travis-ci.com/unina-sfere/rofanova.svg?branch=master)](https://travis-ci.com/unina-sfere/rofanova)
+[![R build status](https://github.com/unina-sfere/rofanova/workflows/R-CMD-check/badge.svg)](https://github.com/unina-sfere/rofanova/actions)
 <!-- badges: end -->
 
 The package  **rofanova** implements the robust nonparametric functional ANOVA method (RoFANOVA) proposed by Centofanti et al. (2021).
@@ -56,13 +57,13 @@ We start by loading and attaching the  **rofanova** package.
 ```{r, message=FALSE,warning=FALSE}
 library(rofanova)
 ```
-Then, we generate the data and, just as an example, we fix the number of permutations $B$ to $50$.
+Then, we generate the data and, just as an example, we fix the number of permutations $B$ to $20$.
 
 ```{r,results='hide' } 
 data_out<-simulate_data(scenario="one-way")
 label_1=data_out$label_1
 X_fdata<-data_out$X_fdata
-B=50
+B=20
 ```
 We compute the p-values corresponding to the RoFANOVA test with the median, the Huber, the bisquare, the Hampel, and the optimal loss functions. 
 ```{r , results='hide'} 
@@ -90,7 +91,7 @@ data_out<-simulate_data(scenario="two-way")
 label_1=data_out$label_1
 label_2=data_out$label_2
 X_fdata<-data_out$X_fdata
-B=50
+B=20
 per_list_median<-rofanova(X_fdata,label_1,label_2,B = B,family="median")
 pvalue_median<-per_list_median$pval_vec
 per_list_huber<-rofanova(X_fdata,label_1,label_2,B = B,family="huber")

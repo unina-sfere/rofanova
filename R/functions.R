@@ -48,7 +48,7 @@
 #' pvalue_hampel_vec<-per_list_hampel$pval_vec
 #' per_list_optimal<-rofanova(X_fdata,label_1,B = B,family="optimal",cores=cores)
 #' pvalue_optimal<-per_list_optimal$pval
-simulate_data<-function(scenario="one-way",mean="M1",con="C0",p=0.1,M=1,n_i=10,k_1=3,k_2=3,alpha=0,beta=0,sd=0.01,grid=seq(0,1,length.out = 30),err="s"){
+simulate_data<-function(scenario="one-way",mean="M1",con="C0",p=0.1,M=1,n_i=25,k_1=3,k_2=3,alpha=0,beta=0,sd=0.01,grid=seq(0,1,length.out = 30),err="s"){
 
   if(scenario=="one-way")
     return(simulate_data_oneway(mean=mean,con=con,p=p,M=M,n_i=n_i,k=k_1,sd=sd,grid=grid))
