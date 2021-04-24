@@ -59,7 +59,7 @@ simulate_data<-function(scenario="one-way",mean="M1",con="C0",p=0.1,M=1,n_i=25,k
   if(scenario=="two-way surface")
     return(simulate_data_twoway_sur(con=con,p=p,M=M,n_i=n_i,k_1=k_1,k_2=k_2,alpha=alpha,beta=beta,sd=sd,grid=grid,err=err))
 }
-simulate_data_oneway<-function(mean="M1",con="C1",p=0.1,M=1,n_i=10,k=3,sd=0.01,grid=seq(0,1,length.out = 30)){
+simulate_data_oneway<-function(mean="M1",con="C1",p=0.1,M=1,n_i=25,k=3,sd=0.01,grid=seq(0,1,length.out = 30)){
 
   print("Simulated data one-way")
   if(mean=="M1"){
@@ -147,7 +147,7 @@ simulate_data_oneway<-function(mean="M1",con="C1",p=0.1,M=1,n_i=10,k=3,sd=0.01,g
            label_2=NULL)
   return(out)
 }
-simulate_data_twoway<-function(con="C1",n_i=10,k_1=3,k_2=3,p=0.1,M=1,alpha=0.05,beta=0.05,sd=0.01,grid=seq(0,1,length.out = 30)){
+simulate_data_twoway<-function(con="C1",n_i=25,k_1=3,k_2=3,p=0.1,M=1,alpha=0.05,beta=0.05,sd=0.01,grid=seq(0,1,length.out = 30)){
 
   print("Simulated data Two-way")
   mean_function<-function(t,i,j)t*(1-t)

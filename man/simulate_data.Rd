@@ -10,7 +10,7 @@ simulate_data(
   con = "C0",
   p = 0.1,
   M = 1,
-  n_i = 10,
+  n_i = 25,
   k_1 = 3,
   k_2 = 3,
   alpha = 0,
