@@ -6,7 +6,6 @@ using namespace Rcpp;
 // [[Rcpp::depends(RcppArmadillo)]]
 
 // [[Rcpp::export]]
-
 arma::mat norm_fdata_c(List v){
 
 
@@ -19,20 +18,6 @@ arma::mat norm_fdata_c(List v){
 
 
 }
-// // [[Rcpp::export]]
-// arma::mat norm_fdata_c(List v){
-//
-//
-//   arma::mat data = v[0];
-//   arma::vec grid=v[1];
-//   arma::mat data_2=abs(data);
-//   arma::mat integrale=trapz(grid,trans(data_2));
-//   arma::mat norm =integrale;
-//   return(norm);
-//
-//
-// }
-
 // [[Rcpp::export]]
 arma::mat norm_fdata_c_sur(List v){
 
@@ -80,7 +65,6 @@ arma::mat wfun_c(arma::mat x,int k,double ktun){
   arma::mat out= ww;
   return out;
 }
-
 // [[Rcpp::export]]
 List sum_fdata_c(List x){
   List out(clone(x));
@@ -105,7 +89,6 @@ List sum_fdata_c_sur(List x){
   out[0] = tmp2;
   return out;
 }
-
 // [[Rcpp::export]]
 List div_fdata_c(List x,double k){
   List out(clone(x));
@@ -122,14 +105,11 @@ List div_fdata_c_sur(List x,double k){
   out[0] = tmp2;
   return out;
 }
-
-
 // [[Rcpp::export]]
 List stdandar(List x,List mu,List sig){
   List out(clone(x));
   arma::mat tmp1 = x[0];
   int d1=tmp1.n_rows;
-  int d2=tmp1.n_cols;
   arma::rowvec mu_vec = mu[0];
   arma::mat tmp2=repmat( mu_vec, d1, 1 );
   arma::rowvec sig_vec = sig[0];
@@ -194,7 +174,6 @@ arma::mat dife( arma::mat resi_new, arma::mat resi){
   return out;
 
 }
-
 // [[Rcpp::export]]
 List iteration(List x,List mu0,List sig0,double kpsi,double ktun,double tol, int maxit){
   arma::mat  dife = {1e+10};
@@ -229,7 +208,6 @@ List iteration(List x,List mu0,List sig0,double kpsi,double ktun,double tol, int
   List out(clone(mu_it));
   return out;
 }
-
 // [[Rcpp::export]]
 List iteration_sur(List x,List mu0,List sig0,int kpsi,double ktun,double tol, int maxit){
   arma::cube data = x[0];
@@ -272,11 +250,7 @@ List iteration_sur(List x,List mu0,List sig0,int kpsi,double ktun,double tol, in
   List out(clone(mu_it));
   return out;
 }
-
-
-
 // [[Rcpp::export]]
-
 arma::mat Mwgt_r(arma::mat x,arma::mat cc, Rcpp::StringVector  family){
   // Obtain environment containing function
   Rcpp::Environment base("package:robustbase");
@@ -364,49 +338,3 @@ List iteration_ho_sur(List x,List mu0,List sig0,arma::mat cc,Rcpp::StringVector 
   List out(clone(mu_it));
   return out;
 }
-
-//
-//
-// while (dife > tol & iter < maxit) {
-// # cat(iter)
-//   iter = iter + 1
-//   resi =norm_fdata_c((x-mu0)/sig0 )
-//   ww = wfun_c(resi, kpsi,ktun)
-//   prod<-x
-//   prod$data<-diag(as.numeric(ww))%*%x$data
-//   mu = sum_fdata_c(prod)/sum(ww)
-//   resi_new =norm_fdata_c((x-mu)/sig0)
-//   dife = abs(mean(resi_new) - mean(resi))/mean(resi)
-//   mu0 = mu
-// }
-// sum_fdata<-function(x){
-//   out<-x
-//   out$data<-matrix(colSums(x$data),1)
-//   return(out)
-// }
-//
-// wfun<-function (x, k,ktun)
-// {
-//   if (k == 1)  ww = (1 - (x/ktun)^2)^2 * (abs(x) <= ktun)
-//     else if(k==2) ww = (abs(x) <= ktun) + (abs(x) > ktun)*ktun/(abs(x) + 1e-20)
-//       else if(k==3) ww = 1/(abs(x) + 1e-10)
-//         return(ww)
-// }
-//
-//
-//
-//
-//   dife = 1e+10
-// iter = 0
-// while (dife > tol & iter < maxit) {
-// # cat(iter)
-//   iter = iter + 1
-//   resi =norm_fdata_c((x-mu0)/sig0 )
-//   ww = wfun(resi, kpsi,ktun)
-//   prod<-x
-//   prod$data<-diag(as.numeric(ww))%*%x$data
-//   mu = sum_fdata(prod)/sum(ww)
-//   resi_new =norm_fdata_c((x-mu)/sig0)
-//   dife = abs(mean(resi_new) - mean(resi))/mean(resi)
-//   mu0 = mu
-// }

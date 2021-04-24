@@ -4,10 +4,13 @@
 # rofanova
 
 <!-- badges: start -->
+
+[![Travis build
+status](https://travis-ci.com/unina-sfere/rofanova.svg?branch=master)](https://travis-ci.com/unina-sfere/rofanova)
 <!-- badges: end -->
 
 The package **rofanova** implements the robust nonparametric functional
-ANOVA method (Ro-FANOVA) proposed by Centofanti et al. (2021). Ro-FANOVA
+ANOVA method (RoFANOVA) proposed by Centofanti et al. (2021). RoFANOVA
 addresses the functional analysis of variance (FANOVA) problem, which
 aims to identify the presence of significant differences, in terms of
 functional mean, among groups of a functional data, by being robust
@@ -17,7 +20,7 @@ the functional extension of the classical robust M-estimator, which is
 based on the functional normalized median absolute deviation (FuNMAD)
 estimator.
 
-The main function is `rofanova` which implements the Ro-FANOVA method
+The main function is `rofanova` which implements the RoFANOVA method
 both for univariate and bi-variate functional data by using several
 families of loss functions. The functions `fusem` and `funmad` implement
 the functional equivariant M-estimator and the FuNMAD estimator,
@@ -57,13 +60,13 @@ library(rofanova)
 ```
 
 Then, we generate the data and, just as an example, we fix the number of
-permutations *B* to 20.
+permutations *B* to 50.
 
 ``` r
 data_out<-simulate_data(scenario="one-way")
 label_1=data_out$label_1
 X_fdata<-data_out$X_fdata
-B=20
+B=50
 ```
 
 We compute the p-values corresponding to the RoFANOVA test with the
@@ -90,7 +93,7 @@ The p-values for the siginificance of the main factor are
 ``` r
 print(pvalues)
 #>   median    Huber bisquare   Hampel  optimal 
-#>     0.80     0.85     1.00     0.80     0.95
+#>     0.92     0.90     0.94     0.94     0.92
 ```
 
 Similarly, two-way FANOVA can be performed as follows.
@@ -100,7 +103,7 @@ data_out<-simulate_data(scenario="two-way")
 label_1=data_out$label_1
 label_2=data_out$label_2
 X_fdata<-data_out$X_fdata
-B=20
+B=50
 per_list_median<-rofanova(X_fdata,label_1,label_2,B = B,family="median")
 pvalue_median<-per_list_median$pval_vec
 per_list_huber<-rofanova(X_fdata,label_1,label_2,B = B,family="huber")
@@ -121,14 +124,15 @@ factors and the interaction are
 ``` r
 print(pvalues)
 #>     median Huber bisquare Hampel optimal
-#> MOD   0.65  0.65     0.60   0.60    0.75
-#> F1    0.75  0.80     0.75   0.50    0.50
-#> F2    0.30  0.40     0.45   0.35    0.30
-#> INT   0.85  0.65     0.70   0.70    0.75
+#> MOD   0.96  0.94     0.92   1.00    0.92
+#> F1    0.72  0.72     0.64   0.64    0.64
+#> F2    0.64  0.72     0.78   0.86    0.72
+#> INT   0.92  0.98     0.88   0.94    0.88
 ```
 
 # References
 
--   Centofanti, F., Lepore, A., & Palumbo, B. (2021).
+-   Centofanti, F., Colosimo, B.M., Grasso, M., Menafoglio, A., Palumbo,
+    B., Vantini, S. (2021).
     <!-- Sparse and Smooth Functional Data Clustering. -->
     <!-- *arXiv preprint arXiv:2103.15224*. -->

@@ -16,15 +16,16 @@ knitr::opts_chunk$set(
 # rofanova
 
 <!-- badges: start -->
+[![Travis build status](https://travis-ci.com/unina-sfere/rofanova.svg?branch=master)](https://travis-ci.com/unina-sfere/rofanova)
 <!-- badges: end -->
 
-The package  **rofanova** implements the robust nonparametric functional ANOVA method (Ro-FANOVA) proposed by Centofanti et al. (2021).
-Ro-FANOVA addresses the functional analysis of variance (FANOVA) problem, which aims to identify the presence of significant differences, in terms of
+The package  **rofanova** implements the robust nonparametric functional ANOVA method (RoFANOVA) proposed by Centofanti et al. (2021).
+RoFANOVA addresses the functional analysis of variance (FANOVA) problem, which aims to identify the presence of significant differences, in terms of
 functional mean, among groups of a functional data, by being robust against the presence of possible outliers.
 It is a permutation test whose test statistics rely on the functional equivariant M-estimator, the functional
 extension of the classical robust M-estimator, which is based on the functional normalized median absolute deviation (FuNMAD) estimator.
 
-The main function is `rofanova` which implements the Ro-FANOVA method both for univariate and bi-variate functional data by using several families of loss functions. The functions `fusem` and `funmad` implement the functional equivariant M-estimator and the FuNMAD estimator, respectively.
+The main function is `rofanova` which implements the RoFANOVA method both for univariate and bi-variate functional data by using several families of loss functions. The functions `fusem` and `funmad` implement the functional equivariant M-estimator and the FuNMAD estimator, respectively.
 
 ## Installation
 
@@ -55,13 +56,13 @@ We start by loading and attaching the  **rofanova** package.
 ```{r, message=FALSE,warning=FALSE}
 library(rofanova)
 ```
-Then, we generate the data and, just as an example, we fix the number of permutations $B$ to $20$.
+Then, we generate the data and, just as an example, we fix the number of permutations $B$ to $50$.
 
 ```{r,results='hide' } 
 data_out<-simulate_data(scenario="one-way")
 label_1=data_out$label_1
 X_fdata<-data_out$X_fdata
-B=20
+B=50
 ```
 We compute the p-values corresponding to the RoFANOVA test with the median, the Huber, the bisquare, the Hampel, and the optimal loss functions. 
 ```{r , results='hide'} 
@@ -89,7 +90,7 @@ data_out<-simulate_data(scenario="two-way")
 label_1=data_out$label_1
 label_2=data_out$label_2
 X_fdata<-data_out$X_fdata
-B=20
+B=50
 per_list_median<-rofanova(X_fdata,label_1,label_2,B = B,family="median")
 pvalue_median<-per_list_median$pval_vec
 per_list_huber<-rofanova(X_fdata,label_1,label_2,B = B,family="huber")
@@ -109,6 +110,6 @@ print(pvalues)
 ```
 # References
 
-* Centofanti, F., Lepore, A., & Palumbo, B. (2021).
+* Centofanti, F., Colosimo, B.M., Grasso, M., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
 <!-- Sparse and Smooth Functional Data Clustering. -->
 <!-- *arXiv preprint arXiv:2103.15224*. -->

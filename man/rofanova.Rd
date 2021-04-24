@@ -106,7 +106,7 @@ per_list_optimal<-rofanova(X_fdata,label_1,B = B,family="optimal",cores=cores)
 pvalue_optimal<-per_list_optimal$pval
 }
 \references{
-Centofanti, F., Lepore, A., & Palumbo, B. (2021).
+Centofanti, F., Colosimo, B.M., Grasso, M., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
 }
 \seealso{
 \code{\link{fusem}} \code{\link{funmad}}

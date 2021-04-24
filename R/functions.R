@@ -29,7 +29,7 @@
 #'
 #' @export
 #' @references
-#' Centofanti, F., Lepore, A., & Palumbo, B. (2021).
+#' Centofanti, F., Colosimo, B.M., Grasso, M., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
 #'
 #' @examples
 #' library(rofanova)
@@ -350,7 +350,7 @@ simulate_data_twoway_sur<-function(con="C1",n_i=10,k_1=3,k_2=3,p=0.1,M=1,alpha=0
 #'
 #' @export
 #' @references
-#' Centofanti, F., Lepore, A., & Palumbo, B. (2021).
+#' Centofanti, F., Colosimo, B.M., Grasso, M., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
 #' @inheritParams rofanova
 #' @examples
 #'
@@ -564,7 +564,7 @@ rfun<-function (x,rho="bisquare",eff=0.95){
 #'
 #' @export
 #' @references
-#' Centofanti, F., Lepore, A., & Palumbo, B. (2021).
+#' Centofanti, F., Colosimo, B.M., Grasso, M., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
 #' @inheritParams rofanova
 #' @examples
 #'
@@ -744,7 +744,7 @@ scale_res_twoway_pw_sur<-function(x,label_1,label_2,...){
 #'
 #' @export
 #' @references
-#' Centofanti, F., Lepore, A., & Palumbo, B. (2021).
+#' Centofanti, F., Colosimo, B.M., Grasso, M., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
 #'
 #' @examples
 #' library(rofanova)
@@ -1252,271 +1252,3 @@ rofanova_twoway_sur<-function(X,label_1,label_2=NA,family="bisquare",eff = 0.95,
               family=family)
     return(out)
 }
-
-
-# # TWOWAY Fanova -----------------------------------------------------------
-# fanova_twoway<-function(X,label_1,label_2){
-#
-#   n_ij=length(which(label_1==1&label_2==1))
-#   k_1=length(unique(label_1))
-#   k_2=length(unique(label_2))
-#   n=length(label_1)
-#
-#   global_mean<-func.mean(X)
-#   group_mean_1<-lapply(1:k_1,function(ii)func.mean(X[label_1==ii]))
-#   group_mean_2<-lapply(1:k_2,function(ii)func.mean(X[label_2==ii]))
-#   group_mean_ij<-list()
-#   for (ii in 1:k_1) {
-#     group_mean_ij[[ii]]<-lapply(1:k_2,function(jj)func.mean(X[label_1==ii&label_2==jj])  )
-#   }
-#
-#
-#   kkk=1
-#   sum_full_list<-list()
-#   for (ii in 1:k_1) {
-#     for (jj in 1:k_2) {
-#       sum_full_list[[kkk]]<-(X[label_1==ii&label_2==jj]-group_mean_ij[[ii]][[jj]])^2
-#       kkk=kkk+1
-#     }
-#   }
-#   sum_full_data<-Reduce("rbind",lapply(1:(k_1*k_2), function(ii)sum_full_list[[ii]]$data))
-#   SSE<-sum_fdata(fdata(sum_full_data,argvals =grid ))
-#   # Mod ---------------------------------------------------------------------
-#
-#
-#   kkk=1
-#   sum_full_list<-list()
-#   for (ii in 1:k_1) {
-#     for (jj in 1:k_2) {
-#       sum_full_list[[kkk]]<-n_ij*(group_mean_ij[[ii]][[jj]]-global_mean)^2
-#       kkk=kkk+1
-#     }
-#   }
-#   sum_full_data<-Reduce("rbind",lapply(1:(k_1*k_2), function(ii)sum_full_list[[ii]]$data))
-#   SSmod<-sum_fdata(fdata(sum_full_data,argvals =grid ))
-#   T_numden_mod<-int.simpson(SSmod/((k_1-1)+(k_2-1)+(k_1-1)*(k_2-1)),method = "TRAPZ")/int.simpson(SSE/(k_1*k_2*(n_ij-1)),method = "TRAPZ")
-#   T_full_mod<-int.simpson((SSmod/((k_1-1)+(k_2-1)+(k_1-1)*(k_2-1)))/(SSE/(k_1*k_2*(n_ij-1))),method = "TRAPZ")
-#   T_mod<-c(numden=T_numden_mod,full=T_full_mod)
-#
-#   # Int ---------------------------------------------------------------------
-#
-#   kkk=1
-#   sum_full_list<-list()
-#   for (ii in 1:k_1) {
-#     for (jj in 1:k_2) {
-#       sum_full_list[[kkk]]<-n_ij*(group_mean_ij[[ii]][[jj]]-group_mean_1[[ii]]-group_mean_2[[jj]]+global_mean)^2
-#       kkk=kkk+1
-#     }
-#   }
-#   sum_full_data<-Reduce("rbind",lapply(1:(k_1*k_2), function(ii)sum_full_list[[ii]]$data))
-#   SSint<-sum_fdata(fdata(sum_full_data,argvals =grid ))
-#   T_numden_int<-int.simpson(SSint/((k_1-1)*(k_2-1)),method = "TRAPZ")/int.simpson(SSE/(k_1*k_2*(n_ij-1)),method = "TRAPZ")
-#   T_full_int<-int.simpson((SSint/((k_1-1)*(k_2-1)))/(SSE/(k_1*k_2*(n_ij-1))),method = "TRAPZ")
-#   T_int<-c(numden=T_numden_int,full=T_full_int)
-#   # F1 ----------------------------------------------------------------------
-#   kkk=1
-#   sum_full_list<-list()
-#   for (ii in 1:k_1) {
-#     sum_full_list[[kkk]]<-n_ij*k_2*(group_mean_1[[ii]]-global_mean)^2
-#     kkk=kkk+1
-#
-#   }
-#   sum_full_data<-Reduce("rbind",lapply(1:(k_1), function(ii)sum_full_list[[ii]]$data))
-#   SS1<-sum_fdata(fdata(sum_full_data,argvals =grid ))
-#   T_numden_1<-int.simpson(SS1/((k_1-1)),method = "TRAPZ")/int.simpson(SSE/(k_1*k_2*(n_ij-1)),method = "TRAPZ")
-#   T_full_1<-int.simpson((SS1/((k_1-1)))/(SSE/(k_1*k_2*(n_ij-1))),method = "TRAPZ")
-#   T_1<-c(numden=T_numden_1,full=T_full_1)
-#   # F2 ----------------------------------------------------------------------
-#
-#   kkk=1
-#   sum_full_list<-list()
-#   for (ii in 1:k_2) {
-#     sum_full_list[[kkk]]<-n_ij*k_1*(group_mean_2[[ii]]-global_mean)^2
-#     kkk=kkk+1
-#
-#   }
-#   sum_full_data<-Reduce("rbind",lapply(1:(k_2), function(ii)sum_full_list[[ii]]$data))
-#   SS2<-sum_fdata(fdata(sum_full_data,argvals =grid ))
-#   T_numden_2<-int.simpson(SS2/((k_2-1)),method = "TRAPZ")/int.simpson(SSE/(k_1*k_2*(n_ij-1)),method = "TRAPZ")
-#   T_full_2<-int.simpson((SS2/((k_2-1)))/(SSE/(k_1*k_2*(n_ij-1))),method = "TRAPZ")
-#   T_2<-c(numden=T_numden_2,full=T_full_2)
-#
-#
-#   Tr<-rbind(T_mod,T_int,T_1,T_2)
-#   rownames(Tr)<-c("MOD","INT","F1","F2")
-#   out<-list(Tr=Tr,
-#             global_mean=global_mean,
-#             group_mean_1=group_mean_1,
-#             group_mean_2=group_mean_2,
-#             group_mean_ij=group_mean_ij,
-#             X_fdata=X,
-#             label_1=label_1,
-#             label_2=label_2)
-#   return(out)
-# }
-# fanova_twoway_perm<-function(X,label_1,label_2,B=100,...){
-#
-#   n<-length(label_1)
-#
-#   Tr_obs<-fanova_twoway(X,label_1,label_2)$Tr
-#   perm_mat<-t(sapply(1:B,function(ii)sample(1:n,replace = F)))
-#   per_fun<-function(kkk){
-#     perm_comb<-perm_mat[kkk,]
-#     X_per<-X[perm_comb]
-#     return(fanova_twoway(X_per,label_1,label_2)$Tr)
-#   }
-#   per_list<-parallel::mclapply(1:B,per_fun,mc.cores = detectCores())
-#
-#
-#   pval_mat<-Tr_obs
-#   Tr_perm<-list()
-#   for (ii in 1:nrow(pval_mat)) {
-#     Tr_perm[[ii]]<-list()
-#     for (jj in 1:ncol(pval_mat)) {
-#       Tr_perm[[ii]][[jj]]<-sapply(1:B,function(ll)per_list[[ll]][ii,jj])
-#       pval_mat[ii,jj]<-sum(Tr_perm[[ii]][[jj]]>=Tr_obs[ii,jj])/B
-#     }
-#
-#   }
-#
-#   out<-list(pval_mat=pval_mat,
-#             Tr_obs=Tr_obs,
-#             Tr_perm=Tr_perm)
-#   return(out)
-#
-# }
-# fanova_twoway_sur<-function(X,label_1,label_2){
-#
-#   n_ij=length(which(label_1==1&label_2==1))
-#   k_1=length(unique(label_1))
-#   k_2=length(unique(label_2))
-#   n=length(label_1)
-#   grid=X$argvals
-#   global_mean<-func.mean_sur(X)
-#   group_mean_1<-lapply(1:k_1,function(ii)func.mean_sur(ex_fdata(X,label_1==ii)))
-#   group_mean_2<-lapply(1:k_2,function(ii)func.mean_sur(ex_fdata(X,label_2==ii)))
-#   group_mean_ij<-list()
-#   for (ii in 1:k_1) {
-#     group_mean_ij[[ii]]<-lapply(1:k_2,function(jj)func.mean_sur(ex_fdata(X,label_1==ii&label_2==jj)))
-#   }
-#
-#
-#   kkk=1
-#   sum_full_list<-list()
-#   for (ii in 1:k_1) {
-#     for (jj in 1:k_2) {
-#       sum_full_list[[kkk]]<-center_sur(ex_fdata(X,label_1==ii&label_2==jj),group_mean_ij[[ii]][[jj]])^2
-#       kkk=kkk+1
-#     }
-#   }
-#   sum_full_data<-abind::abind(lapply(1:(k_1*k_2), function(ii)sum_full_list[[ii]]$data),along = 1)
-#   SSE<-acc_fdata_sur(fdata(sum_full_data,argvals =grid ))
-#
-#   # Mod ---------------------------------------------------------------------
-#
-#
-#   kkk=1
-#   sum_full_list<-list()
-#   for (ii in 1:k_1) {
-#     for (jj in 1:k_2) {
-#       sum_full_list[[kkk]]<-n_ij*diff_fdata_sur(group_mean_ij[[ii]][[jj]],global_mean)^2
-#       kkk=kkk+1
-#     }
-#   }
-#   sum_full_data<-abind::abind(lapply(1:(k_1*k_2), function(ii)sum_full_list[[ii]]$data),along = 1)
-#   SSmod<-acc_fdata_sur(fdata(sum_full_data,argvals =grid ))
-#   T_numden_mod<-int_sur(SSmod/((k_1-1)+(k_2-1)+(k_1-1)*(k_2-1)))/int_sur(SSE/(k_1*k_2*(n_ij-1)))
-#   T_full_mod<-int_sur(frac_fdata_sur(SSmod/((k_1-1)+(k_2-1)+(k_1-1)*(k_2-1)),SSE/(k_1*k_2*(n_ij-1))))
-#   T_mod<-c(numden=T_numden_mod,full=T_full_mod)
-#
-#   # Int ---------------------------------------------------------------------
-#
-#
-#   kkk=1
-#   sum_full_list<-list()
-#   for (ii in 1:k_1) {
-#     for (jj in 1:k_2) {
-#       ele<-sum_fdata_sur(diff_fdata_sur(group_mean_ij[[ii]][[jj]],sum_fdata_sur(group_mean_1[[ii]],group_mean_2[[jj]])),global_mean)
-#       sum_full_list[[kkk]]<-n_ij*(ele)^2
-#       kkk=kkk+1
-#     }
-#   }
-#   sum_full_data<-abind::abind(lapply(1:(k_1*k_2), function(ii)sum_full_list[[ii]]$data),along = 1)
-#   SSint<-acc_fdata_sur(fdata(sum_full_data,argvals =grid ))
-#   T_numden_int<-int_sur(SSint/((k_1-1)*(k_2-1)))/int_sur(SSE/(k_1*k_2*(n_ij-1)))
-#   T_full_int<-int_sur(frac_fdata_sur(SSint/((k_1-1)*(k_2-1)),(SSE/(k_1*k_2*(n_ij-1)))))
-#   T_int<-c(numden=T_numden_int,full=T_full_int)
-#   # F1 ----------------------------------------------------------------------
-#
-#   kkk=1
-#   sum_full_list<-list()
-#   for (ii in 1:k_1) {
-#     sum_full_list[[kkk]]<-n_ij*k_2*diff_fdata_sur(group_mean_1[[ii]],global_mean)^2
-#     kkk=kkk+1
-#
-#   }
-#   sum_full_data<-abind::abind(lapply(1:(k_1), function(ii)sum_full_list[[ii]]$data),along = 1)
-#   SS1<-acc_fdata_sur(fdata(sum_full_data,argvals =grid ))
-#   T_numden_1<-int_sur(SS1/((k_1-1)))/int_sur(SSE/(k_1*k_2*(n_ij-1)))
-#   T_full_1<-int_sur(frac_fdata_sur(SS1/((k_1-1)),(SSE/(k_1*k_2*(n_ij-1)))))
-#   T_1<-c(numden=T_numden_1,full=T_full_1)
-#   # F2 ----------------------------------------------------------------------
-#
-#   kkk=1
-#   sum_full_list<-list()
-#   for (ii in 1:k_2) {
-#     sum_full_list[[kkk]]<-n_ij*k_1*diff_fdata_sur(group_mean_2[[ii]],global_mean)^2
-#     kkk=kkk+1
-#
-#   }
-#   sum_full_data<-abind::abind(lapply(1:(k_2), function(ii)sum_full_list[[ii]]$data),along = 1)
-#   SS2<-acc_fdata_sur(fdata(sum_full_data,argvals =grid ))
-#   T_numden_2<-int_sur(SS2/((k_2-1)))/int_sur(SSE/(k_1*k_2*(n_ij-1)))
-#   T_full_2<-int_sur(frac_fdata_sur(SS2/(k_2-1),(SSE/(k_1*k_2*(n_ij-1)))))
-#   T_2<-c(numden=T_numden_2,full=T_full_2)
-#
-#
-#   Tr<-rbind(T_mod,T_int,T_1,T_2)
-#   rownames(Tr)<-c("MOD","INT","F1","F2")
-#   out<-list(Tr=Tr,
-#             global_mean=global_mean,
-#             group_mean_1=group_mean_1,
-#             group_mean_2=group_mean_2,
-#             group_mean_ij=group_mean_ij,
-#             SSE=SSE,
-#             X_fdata=X,
-#             label_1=label_1,
-#             label_2=label_2)
-#   return(out)
-# }
-# fanova_twoway_perm_sur<-function(X,label_1,label_2,B=100,...){
-#
-#   n<-length(label_1)
-#
-#   Tr_obs<-fanova_twoway_sur(X,label_1,label_2)$Tr
-#   perm_mat<-t(sapply(1:B,function(ii)sample(1:n,replace = F)))
-#   per_fun<-function(kkk){
-#     perm_comb<-perm_mat[kkk,]
-#     X_per<-ex_fdata(X,perm_comb)
-#     return(fanova_twoway_sur(X_per,label_1,label_2)$Tr)
-#   }
-#   per_list<-parallel::mclapply(1:B,per_fun,mc.cores = detectCores())
-#
-#
-#   pval_mat<-Tr_obs
-#   Tr_perm<-list()
-#   for (ii in 1:nrow(pval_mat)) {
-#     Tr_perm[[ii]]<-list()
-#     for (jj in 1:ncol(pval_mat)) {
-#       Tr_perm[[ii]][[jj]]<-sapply(1:B,function(ll)per_list[[ll]][ii,jj])
-#       pval_mat[ii,jj]<-sum(Tr_perm[[ii]][[jj]]>=Tr_obs[ii,jj])/B
-#     }
-#
-#   }
-#
-#   out<-list(pval_mat=pval_mat,
-#             Tr_obs=Tr_obs,
-#             Tr_perm=Tr_perm)
-#   return(out)
-#
-# }
