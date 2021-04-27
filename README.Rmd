@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 # rofanova
 
 <!-- badges: start -->
-[![Travis build status](https://travis-ci.com/unina-sfere/rofanova.svg?branch=master)](https://travis-ci.com/unina-sfere/rofanova)
+[![Build Status](https://travis-ci.com/unina-sfere/rofanova.svg?token=zEVZzMQzEwHdN1bmyHeE&branch=main)](https://travis-ci.com/unina-sfere/rofanova)
 [![R build status](https://github.com/unina-sfere/rofanova/workflows/R-CMD-check/badge.svg)](https://github.com/unina-sfere/rofanova/actions)
 <!-- badges: end -->
 

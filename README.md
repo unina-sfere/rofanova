@@ -5,8 +5,8 @@
 
 <!-- badges: start -->
 
-[![Travis build
-status](https://travis-ci.com/unina-sfere/rofanova.svg?branch=master)](https://travis-ci.com/unina-sfere/rofanova)
+[![Build
+Status](https://travis-ci.com/unina-sfere/rofanova.svg?token=zEVZzMQzEwHdN1bmyHeE&branch=main)](https://travis-ci.com/unina-sfere/rofanova)
 [![R build
 status](https://github.com/unina-sfere/rofanova/workflows/R-CMD-check/badge.svg)](https://github.com/unina-sfere/rofanova/actions)
 <!-- badges: end -->
@@ -95,7 +95,7 @@ The p-values for the siginificance of the main factor are
 ``` r
 print(pvalues)
 #>   median    Huber bisquare   Hampel  optimal 
-#>     0.55     0.65     0.40     0.55     0.55
+#>     0.15     0.20     0.25     0.15     0.20
 ```
 
 Similarly, two-way FANOVA can be performed as follows.
@@ -126,10 +126,10 @@ factors and the interaction are
 ``` r
 print(pvalues)
 #>     median Huber bisquare Hampel optimal
-#> MOD   0.75   0.7     0.55   0.55    0.75
-#> F1    0.95   0.8     0.90   0.95    0.90
-#> F2    0.35   0.3     0.30   0.35    0.20
-#> INT   0.70   0.6     0.30   0.65    0.60
+#> MOD   0.80  0.85     0.75   0.85     0.7
+#> F1    0.85  0.80     0.60   0.75     0.8
+#> F2    0.45  0.50     0.60   0.60     0.4
+#> INT   0.80  0.90     0.70   0.70     0.6
 ```
 
 # References
