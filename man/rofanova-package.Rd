@@ -4,19 +4,18 @@
 \name{rofanova-package}
 \alias{rofanova-package}
 \alias{_PACKAGE}
-\alias{{rofanova}-package}
 \title{Robust Functional Anlaysis of Variance}
 \description{
-Implements the robust functional analysis of variance (RoFANOVA), described in Centofanti et al. (2021) <arXiv:2103.15224>. 
+Implements the robust functional analysis of variance (RoFANOVA), described in Centofanti et al. (2021) <arXiv:>. 
     It allows testing mean differences among groups of  functional data by being robust aginst the presence of outliers.
 }
 \details{
 \tabular{ll}{
 Package: \tab rofanova\cr
 Type: \tab Package\cr
-Version: \tab `r packageVersion("rofanova")` \cr
-Date: \tab  `r Sys.Date()` \cr
-License: \tab `r packageDescription("rofanova", fields="License")`\cr
+Version: \tab 1.0.0 \cr
+Date: \tab  2021-11-16 \cr
+License: \tab GPL-3\cr
 }
 }
 \examples{
@@ -38,11 +37,12 @@ per_list_optimal<-rofanova(X_fdata,label_1,B = B,family="optimal",cores=cores)
 pvalue_optimal<-per_list_optimal$pval
 }
 \references{
-Centofanti, F., Lepore, A., & Palumbo, B. (2021).
+Centofanti, F., Colosimo, B.M., Grasso, M.L., Menafoglio, A., Palumbo, B., Vantini, S. B. (2021).
 }
 \seealso{
-\code{\link{fusem}} \code{\link{funmad}}
+\code{\link{rofanova}} \code{\link{fusem}} \code{\link{funmad}}
 }
 \author{
-Fabio Centofanti, Antonio Lepore, Biagio Palumbo
+Fabio Centofanti, Bianca Maria Colosimo, Marco Luigi Grasso,
+Antonio Lepore, Alessandra Menafoglio, Biagio Palumbo, Simone Vantini
 }

@@ -29,7 +29,7 @@
 #'
 #' @export
 #' @references
-#' Centofanti, F., Colosimo, B.M., Grasso, M., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
+#' Centofanti, F., Colosimo, B.M., Grasso, M.L., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
 #'
 #' @examples
 #' library(rofanova)
@@ -332,7 +332,7 @@ simulate_data_twoway_sur<-function(con="C1",n_i=10,k_1=3,k_2=3,p=0.1,M=1,alpha=0
 #'
 #' @export
 #' @references
-#' Centofanti, F., Colosimo, B.M., Grasso, M., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
+#' Centofanti, F., Colosimo, B.M., Grasso, M.L., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
 #' @inheritParams rofanova
 #' @examples
 #'
@@ -517,12 +517,11 @@ rfun<-function (x,rho="bisquare",eff=0.95){
 #' @description Compute  the functional normalized median absolute deviation (FuNMAD) estimator  as described in Centofanti et al. (2021).
 #' @param ... Additional argument to be passed to \code{fusem}.
 #' @return The FuNMAD estimator.
-
 #'@seealso \code{\link{rofanova}} \code{\link{fusem}}
 #'
 #' @export
 #' @references
-#' Centofanti, F., Colosimo, B.M., Grasso, M., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
+#' Centofanti, F., Colosimo, B.M., Grasso, M.L., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
 #' @inheritParams rofanova
 #' @examples
 #'
@@ -688,7 +687,7 @@ scale_res_twoway_pw_sur<-function(x,label_1,label_2,...){
 #'
 #' @export
 #' @references
-#' Centofanti, F., Colosimo, B.M., Grasso, M., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
+#' Centofanti, F., Colosimo, B.M., Grasso, M.L., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
 #'
 #' @examples
 #' library(rofanova)

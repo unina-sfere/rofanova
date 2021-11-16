@@ -54,7 +54,7 @@ A list containing the following arguments:
 
 \item\code{label_1}: The vector of containing group label corresponding to the first main effect.
 
- \item\code{label_2}: The vector of containing group label corresponding to the second main effect. For one-way ANOVA, it is NULL.
+\item\code{label_2}: The vector of containing group label corresponding to the second main effect. For one-way ANOVA, it is NULL.
 }
 }
 \description{
@@ -79,7 +79,7 @@ per_list_optimal<-rofanova(X_fdata,label_1,B = B,family="optimal",cores=cores)
 pvalue_optimal<-per_list_optimal$pval
 }
 \references{
-Centofanti, F., Colosimo, B.M., Grasso, M., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
+Centofanti, F., Colosimo, B.M., Grasso, M.L., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
 }
 \seealso{
 \code{\link{rofanova}} \code{\link{fusem}} \code{\link{funmad}}

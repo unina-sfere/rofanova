@@ -32,8 +32,8 @@ Otherwise, the two-way RoFANOVA with interaction is employed. Default is NULL.}
 
 \item{family}{The family of loss function for the calcualtion of the equivariant functional M-estimator. The values allowed are
 "bisquare" for the bisquare or Tukey's biweight family of loss functions;  "huber" for the the Huber's family of loss functions;
-  "optimal" for the  optimal family of loss functions; "hampel" for the the Hampel's family of loss functions; "median" for the median loss function.
-  A non-robust functional estimator of the mean based on the standard least squares loss function is used with the value "mean". Default is "bisquare".}
+"optimal" for the  optimal family of loss functions; "hampel" for the the Hampel's family of loss functions; "median" for the median loss function.
+A non-robust functional estimator of the mean based on the standard least squares loss function is used with the value "mean". Default is "bisquare".}
 
 \item{eff}{Asymptotic efficiency of the equivariant functional M-estimator. When \code{family} is either "mean" or "median", \code{eff} is ignored.}
 
@@ -50,11 +50,11 @@ The algorithm stops when the relative variation of the weighted norm sum between
 \value{
 \code{pval_vec} Vector of p-value of corresponding to the test of significance of the whole model, the main effects and the interaction.  For one-way RoFANOVA, it is the p-value corresponding to the test of the main effect.
 
- \code{Tr_obs} The observed value of the test statistic.
+\code{Tr_obs} The observed value of the test statistic.
 
- \code{Tr_perm} The values of the test statistic for each permutation.
+\code{Tr_perm} The values of the test statistic for each permutation.
 
-  \code{mod} A list containing the following arguments:
+\code{mod} A list containing the following arguments:
 \itemize{
 \item \code{Tr}: The observed value of the test statistic.
 
@@ -78,9 +78,9 @@ The algorithm stops when the relative variation of the weighted norm sum between
 
 \item\code{label_1}: The vector of containing group label corresponding to the first main effect.
 
- \item\code{label_2}: The vector of containing group label corresponding to the second main effect. For one-way RoFANOVA, it is NULL.
+\item\code{label_2}: The vector of containing group label corresponding to the second main effect. For one-way RoFANOVA, it is NULL.
 
- \item\code{family}: The family of loss function for the calcualtion of the equivariant functional M-estimator.
+\item\code{family}: The family of loss function for the calcualtion of the equivariant functional M-estimator.
 }
 }
 \description{
@@ -106,7 +106,7 @@ per_list_optimal<-rofanova(X_fdata,label_1,B = B,family="optimal",cores=cores)
 pvalue_optimal<-per_list_optimal$pval
 }
 \references{
-Centofanti, F., Colosimo, B.M., Grasso, M., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
+Centofanti, F., Colosimo, B.M., Grasso, M.L., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
 }
 \seealso{
 \code{\link{fusem}} \code{\link{funmad}}

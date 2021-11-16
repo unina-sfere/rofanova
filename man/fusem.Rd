@@ -19,8 +19,8 @@ fusem(
 
 \item{family}{The family of loss function for the calcualtion of the equivariant functional M-estimator. The values allowed are
 "bisquare" for the bisquare or Tukey's biweight family of loss functions;  "huber" for the the Huber's family of loss functions;
-  "optimal" for the  optimal family of loss functions; "hampel" for the the Hampel's family of loss functions; "median" for the median loss function.
-  A non-robust functional estimator of the mean based on the standard least squares loss function is used with the value "mean". Default is "bisquare".}
+"optimal" for the  optimal family of loss functions; "hampel" for the the Hampel's family of loss functions; "median" for the median loss function.
+A non-robust functional estimator of the mean based on the standard least squares loss function is used with the value "mean". Default is "bisquare".}
 
 \item{eff}{Asymptotic efficiency of the equivariant functional M-estimator. When \code{family} is either "mean" or "median", \code{eff} is ignored.}
 
@@ -41,7 +41,7 @@ A list containing the following arguments:
 
 \item\code{mu0_g}: \code{mu0_g}.
 
- \item\code{sig0_g}: \code{sig0_g}.
+\item\code{sig0_g}: \code{sig0_g}.
 }
 }
 \description{
@@ -55,7 +55,7 @@ X_fdata<-data_out$X_fdata
 per_list_median<-fusem(X_fdata)
 }
 \references{
-Centofanti, F., Colosimo, B.M., Grasso, M., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
+Centofanti, F., Colosimo, B.M., Grasso, M.L., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
 }
 \seealso{
 \code{\link{rofanova}} \code{\link{funmad}}

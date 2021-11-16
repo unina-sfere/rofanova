@@ -19,13 +19,13 @@ NULL
 #'
 #'
 #'
-#'
-#' @aliases {rofanova}-package
-#' @author Fabio Centofanti, Antonio Lepore, Biagio Palumbo
+#' @aliases rofanova-package
+#' @author Fabio Centofanti, Bianca Maria Colosimo, Marco Luigi Grasso,
+#'  Antonio Lepore, Alessandra Menafoglio, Biagio Palumbo, Simone Vantini
 #' @references
-#' Centofanti, F., Lepore, A., & Palumbo, B. (2021).
+#' Centofanti, F., Colosimo, B.M., Grasso, M.L., Menafoglio, A., Palumbo, B., Vantini, S. B. (2021).
 #'
-#' @seealso \code{\link{fusem}} \code{\link{funmad}}
+#' @seealso \code{\link{rofanova}} \code{\link{fusem}} \code{\link{funmad}}
 #' @examples
 ##' library(rofanova)
 #' data_out<-simulate_data(scenario="one-way")

@@ -25,7 +25,7 @@ X_fdata<-data_out$X_fdata
 per_list_median<-funmad(X_fdata)
 }
 \references{
-Centofanti, F., Colosimo, B.M., Grasso, M., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
+Centofanti, F., Colosimo, B.M., Grasso, M.L., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
 }
 \seealso{
 \code{\link{rofanova}} \code{\link{fusem}}
