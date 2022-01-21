@@ -6,7 +6,7 @@
 \alias{_PACKAGE}
 \title{Robust Functional Analysis of Variance}
 \description{
-Implements the robust functional analysis of variance (RoFANOVA), described in Centofanti et al. (2021) <arXiv:2112.10643>. 
+Implements the robust functional analysis of variance (RoFANOVA), described in Centofanti et al. (2021) <arXiv:2112.10643>.
     It allows testing mean differences among groups of  functional data by being robust against the presence of outliers.
 }
 \details{
