@@ -23,7 +23,7 @@ simulate_data(
 \arguments{
 \item{scenario}{A  character strings indicating the scenario considered. It could be "one-way", "two-way", "one-way surface" and "two-way surface".}
 
-\item{mean}{A character strings indicating the type of mean functionin one-way ANOVA. It could be "M1", "M2", and "M3".}
+\item{mean}{A character strings indicating the type of mean function in one-way ANOVA. It could be "M1", "M2", and "M3".}
 
 \item{con}{A character strings indicating the type of contamination function. It could be "C0", for no contamination, "C1", "C2", "C3", "C4", "C5", and "C6".}
 
@@ -80,6 +80,8 @@ pvalue_optimal<-per_list_optimal$pval
 }
 \references{
 Centofanti, F., Colosimo, B.M., Grasso, M.L., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
+Robust Functional ANOVA with Application to Additive Manufacturing.
+\emph{arXiv preprint arXiv:2112.10643}.
 }
 \seealso{
 \code{\link{rofanova}} \code{\link{fusem}} \code{\link{funmad}}

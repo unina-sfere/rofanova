@@ -88,12 +88,12 @@ pvalues<-c(pvalue_median,pvalue_huber,pvalue_bisquare,pvalue_hampel,pvalue_optim
 names(pvalues)=c("median", "Huber", "bisquare", "Hampel", "optimal")
 ```
 
-The p-values for the siginificance of the main factor are
+The p-values for the significance of the main factor are
 
 ``` r
 print(pvalues)
 #>   median    Huber bisquare   Hampel  optimal 
-#>     0.40     0.25     0.40     0.30     0.40
+#>     0.70     0.80     0.65     0.65     0.70
 ```
 
 Similarly, two-way FANOVA can be performed as follows.
@@ -118,21 +118,20 @@ pvalues<-cbind(pvalue_median,pvalue_huber,pvalue_bisquare,pvalue_hampel,pvalue_o
 colnames(pvalues)=c("median", "Huber", "bisquare", "Hampel", "optimal") 
 ```
 
-The p-values for the siginificance of the whole model, the two main
+The p-values for the significance of the whole model, the two main
 factors and the interaction are
 
 ``` r
 print(pvalues)
 #>     median Huber bisquare Hampel optimal
-#> MOD   0.30  0.15     0.25   0.20    0.15
-#> F1    0.70  0.55     0.35   0.40    0.50
-#> F2    0.70  0.80     0.85   0.80    0.55
-#> INT   0.05  0.05     0.10   0.05    0.05
+#> MOD   0.45  0.40     0.45   0.40    0.15
+#> F1    0.65  0.55     0.75   0.55    0.50
+#> F2    0.40  0.80     0.70   0.65    0.40
+#> INT   0.40  0.30     0.15   0.30    0.15
 ```
 
 # References
 
 -   Centofanti, F., Colosimo, B.M., Grasso, M., Menafoglio, A., Palumbo,
-    B., Vantini, S. (2021).
-    <!-- Sparse and Smooth Functional Data Clustering. -->
-    <!-- *arXiv preprint arXiv:2103.15224*. -->
+    B., Vantini, S. (2021). Robust Functional ANOVA with Application to
+    Additive Manufacturing. *arXiv preprint arXiv:2112.10643*.

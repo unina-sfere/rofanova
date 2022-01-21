@@ -6,7 +6,7 @@ NULL
 
 
 
-#' @title Robust Functional Anlaysis of Variance
+#' @title Robust Functional Analysis of Variance
 #' @details
 #'
 #'\tabular{ll}{
@@ -23,8 +23,9 @@ NULL
 #' @author Fabio Centofanti, Bianca Maria Colosimo, Marco Luigi Grasso,
 #'  Antonio Lepore, Alessandra Menafoglio, Biagio Palumbo, Simone Vantini
 #' @references
-#' Centofanti, F., Colosimo, B.M., Grasso, M.L., Menafoglio, A., Palumbo, B., Vantini, S. B. (2021).
-#'
+#' Centofanti, F., Colosimo, B.M., Grasso, M.L., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
+#' Robust Functional ANOVA with Application to Additive Manufacturing.
+#' \emph{arXiv preprint arXiv:2112.10643}.
 #' @seealso \code{\link{rofanova}} \code{\link{fusem}} \code{\link{funmad}}
 #' @examples
 ##' library(rofanova)

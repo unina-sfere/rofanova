@@ -13,11 +13,10 @@ Authors@R: c(
     person("Biagio", "Palumbo", role = c("aut")),
     person("Simone", "Vantini", role = c("aut"))
     )
-Description: Implements the robust functional analysis of variance (RoFANOVA), described in Centofanti et al. (2021) <arXiv:>. 
-    It allows testing mean differences among groups of  functional data by being robust aginst the presence of outliers.
+Description: Implements the robust functional analysis of variance (RoFANOVA), described in Centofanti et al. (2021) <arXiv:2112.10643>. 
+    It allows testing mean differences among groups of  functional data by being robust against the presence of outliers.
 License: GPL-3
 Encoding: UTF-8
-LazyData: true
 RoxygenNote: 7.1.1
 LinkingTo: 
     Rcpp,RcppArmadillo

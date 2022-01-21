@@ -4,7 +4,7 @@
 #' @title Simulate data for Robust Functional ANOVA
 #' @description Generate synthetic data as in the simulation study of Centofanti et al. (2021) with the addition of the case of bi-variate functional data. All the details are in  Centofanti et al. (2021).
 #' @param scenario  A  character strings indicating the scenario considered. It could be "one-way", "two-way", "one-way surface" and "two-way surface".
-#' @param mean A character strings indicating the type of mean functionin one-way ANOVA. It could be "M1", "M2", and "M3".
+#' @param mean A character strings indicating the type of mean function in one-way ANOVA. It could be "M1", "M2", and "M3".
 #' @param con A character strings indicating the type of contamination function. It could be "C0", for no contamination, "C1", "C2", "C3", "C4", "C5", and "C6".
 #' @param p The parameter related to the bernoulli variable in the contamination function.
 #' @param M The contamination size constant.
@@ -30,7 +30,8 @@
 #' @export
 #' @references
 #' Centofanti, F., Colosimo, B.M., Grasso, M.L., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
-#'
+#' Robust Functional ANOVA with Application to Additive Manufacturing.
+#' \emph{arXiv preprint arXiv:2112.10643}.
 #' @examples
 #' library(rofanova)
 #' data_out<-simulate_data(scenario="one-way")
@@ -318,7 +319,7 @@ simulate_data_twoway_sur<-function(con="C1",n_i=10,k_1=3,k_2=3,p=0.1,M=1,alpha=0
 
 #' @title The scale equivariant functional M-estimator
 #' @description Compute the scale equivariant functional M-estimator as described in Centofanti et al. (2021).
-#' @param sig0_g Estimate of the standard error of \code{X}. If NUll, the functional mean is used. Default is NULL.
+#' @param sig0_g Estimate of the standard error of \code{X}. If NULL, the functional mean is used. Default is NULL.
 #' @return
 #' A list containing the following arguments:
 #'\itemize{
@@ -333,6 +334,8 @@ simulate_data_twoway_sur<-function(con="C1",n_i=10,k_1=3,k_2=3,p=0.1,M=1,alpha=0
 #' @export
 #' @references
 #' Centofanti, F., Colosimo, B.M., Grasso, M.L., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
+#' Robust Functional ANOVA with Application to Additive Manufacturing.
+#' \emph{arXiv preprint arXiv:2112.10643}.
 #' @inheritParams rofanova
 #' @examples
 #'
@@ -522,6 +525,8 @@ rfun<-function (x,rho="bisquare",eff=0.95){
 #' @export
 #' @references
 #' Centofanti, F., Colosimo, B.M., Grasso, M.L., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
+#' Robust Functional ANOVA with Application to Additive Manufacturing.
+#' \emph{arXiv preprint arXiv:2112.10643}.
 #' @inheritParams rofanova
 #' @examples
 #'
@@ -636,14 +641,14 @@ scale_res_twoway_pw_sur<-function(x,label_1,label_2,...){
 #' @param label_2 A vector of containing group label corresponding to the second main effect. If it is NULL, the one-way RoFANOVA is performed.
 #'  Otherwise, the two-way RoFANOVA with interaction is employed. Default is NULL.
 #' @param B  The number of permutations used to approximate the p-value in the permutation test. Default is 1000.
-#' @param family The family of loss function for the calcualtion of the equivariant functional M-estimator. The values allowed are
+#' @param family The family of loss function for the calculation of the equivariant functional M-estimator. The values allowed are
 #'  "bisquare" for the bisquare or Tukey's biweight family of loss functions;  "huber" for the the Huber's family of loss functions;
 #'    "optimal" for the  optimal family of loss functions; "hampel" for the the Hampel's family of loss functions; "median" for the median loss function.
 #'    A non-robust functional estimator of the mean based on the standard least squares loss function is used with the value "mean". Default is "bisquare".
 #' @param eff Asymptotic efficiency of the equivariant functional M-estimator. When \code{family} is either "mean" or "median", \code{eff} is ignored.
 #' @param mu0_g Initial estimate  used in re-weighted least-squares algorithm to compute the equivariant functional M-estimator.
 #' If NULL the standard non-robust functional mean is used. Default is NULL.
-#' @param scale Estimate of the standard error of \code{X}. If NUll, the functional normalized median absolute deviation estimator is used. Default is NULL.
+#' @param scale Estimate of the standard error of \code{X}. If NULL, the functional normalized median absolute deviation estimator is used. Default is NULL.
 #' @param maxit The maximum number of iterations allowed in the re-weighted least-squares algorithm to compute the equivariant functional M-estimator.
 #' @param tol The tolerance for the stopping condition of the re-weighted least-squares algorithm to compute the equivariant functional M-estimator.
 #' The algorithm stops when the relative variation of the weighted norm sum between two consecutive iterations is less than \code{tol}.
@@ -681,14 +686,15 @@ scale_res_twoway_pw_sur<-function(x,label_1,label_2,...){
 #'
 #'  \item\code{label_2}: The vector of containing group label corresponding to the second main effect. For one-way RoFANOVA, it is NULL.
 #'
-#'  \item\code{family}: The family of loss function for the calcualtion of the equivariant functional M-estimator.
+#'  \item\code{family}: The family of loss function for the calculation of the equivariant functional M-estimator.
 #'}
 #'@seealso \code{\link{fusem}} \code{\link{funmad}}
 #'
 #' @export
 #' @references
 #' Centofanti, F., Colosimo, B.M., Grasso, M.L., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
-#'
+#' Robust Functional ANOVA with Application to Additive Manufacturing.
+#' \emph{arXiv preprint arXiv:2112.10643}.
 #' @examples
 #' library(rofanova)
 #' data_out<-simulate_data(scenario="one-way")

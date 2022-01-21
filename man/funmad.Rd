@@ -26,6 +26,8 @@ per_list_median<-funmad(X_fdata)
 }
 \references{
 Centofanti, F., Colosimo, B.M., Grasso, M.L., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
+Robust Functional ANOVA with Application to Additive Manufacturing.
+\emph{arXiv preprint arXiv:2112.10643}.
 }
 \seealso{
 \code{\link{rofanova}} \code{\link{fusem}}

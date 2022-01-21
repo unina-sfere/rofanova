@@ -30,7 +30,7 @@ Otherwise, the two-way RoFANOVA with interaction is employed. Default is NULL.}
 
 \item{cores}{If \code{cores}>1, then parallel computing is used, with \code{cores} cores. Default is 1.}
 
-\item{family}{The family of loss function for the calcualtion of the equivariant functional M-estimator. The values allowed are
+\item{family}{The family of loss function for the calculation of the equivariant functional M-estimator. The values allowed are
 "bisquare" for the bisquare or Tukey's biweight family of loss functions;  "huber" for the the Huber's family of loss functions;
 "optimal" for the  optimal family of loss functions; "hampel" for the the Hampel's family of loss functions; "median" for the median loss function.
 A non-robust functional estimator of the mean based on the standard least squares loss function is used with the value "mean". Default is "bisquare".}
@@ -40,7 +40,7 @@ A non-robust functional estimator of the mean based on the standard least square
 \item{mu0_g}{Initial estimate  used in re-weighted least-squares algorithm to compute the equivariant functional M-estimator.
 If NULL the standard non-robust functional mean is used. Default is NULL.}
 
-\item{scale}{Estimate of the standard error of \code{X}. If NUll, the functional normalized median absolute deviation estimator is used. Default is NULL.}
+\item{scale}{Estimate of the standard error of \code{X}. If NULL, the functional normalized median absolute deviation estimator is used. Default is NULL.}
 
 \item{maxit}{The maximum number of iterations allowed in the re-weighted least-squares algorithm to compute the equivariant functional M-estimator.}
 
@@ -80,7 +80,7 @@ The algorithm stops when the relative variation of the weighted norm sum between
 
 \item\code{label_2}: The vector of containing group label corresponding to the second main effect. For one-way RoFANOVA, it is NULL.
 
-\item\code{family}: The family of loss function for the calcualtion of the equivariant functional M-estimator.
+\item\code{family}: The family of loss function for the calculation of the equivariant functional M-estimator.
 }
 }
 \description{
@@ -107,6 +107,8 @@ pvalue_optimal<-per_list_optimal$pval
 }
 \references{
 Centofanti, F., Colosimo, B.M., Grasso, M.L., Menafoglio, A., Palumbo, B., Vantini, S. (2021).
+Robust Functional ANOVA with Application to Additive Manufacturing.
+\emph{arXiv preprint arXiv:2112.10643}.
 }
 \seealso{
 \code{\link{fusem}} \code{\link{funmad}}
